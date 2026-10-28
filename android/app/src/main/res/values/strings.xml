@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Put YOUR page address here once GitHub Pages is on, e.g. https://myname.github.io/news/ -->
+    <string name="live_url" translatable="false">https://jnanendray.github.io/daily_news/</string>
+</resources>
