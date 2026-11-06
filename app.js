@@ -212,13 +212,18 @@ function chunks(text){
   parts.forEach(function(p){if((cur+p).length>180&&cur){out.push(cur.trim());cur=p}else cur+=p});
   if(cur.trim())out.push(cur.trim());return out;
 }
-function note(msg,install,google){
+function note(msg,steps,install,google){
   var n=$('voicenote');n.textContent='';
   if(!msg){n.hidden=true;return}
-  n.appendChild(document.createTextNode(msg));
+  n.appendChild(el('p',null,msg));
+  if(steps&&steps.length){var ol=document.createElement('ol');steps.forEach(function(t){ol.appendChild(el('li',null,t))});n.appendChild(ol)}
   if(install&&APP&&APP.installVoices){var b=el('button',null,'Install voice');b.type='button';b.addEventListener('click',function(){APP.installVoices()});n.appendChild(b)}
   if(google&&APP&&APP.installGoogle){var g=el('button',null,'Get Google voice');g.type='button';g.addEventListener('click',function(){APP.installGoogle()});n.appendChild(g)}
   n.hidden=false;
+}
+function knHelp(){
+  if(APP)note('Kannada voice is not installed on this phone.',['Tap Install voice below.','Choose Kannada (India) and tap the download button.','Come back to this app. This message goes away when the voice is ready.'],true);
+  else note('No Kannada voice was found on this device.',['Open your device Settings and search for "Text-to-speech".','Choose Google as the engine and add the Kannada (India) voice.','Reload this page. The Kannada text is still shown meanwhile.']);
 }
 var pend={},uid=0;
 window.__tts=function(ev,id){var f=pend[id];delete pend[id];if(f)f(ev)};
@@ -242,7 +247,7 @@ function runQueue(){
   $('speaking').hidden=false;$('speaking-t').textContent=job.lang==='kn'?'ಓದುತ್ತಿದೆ':'Speaking';
   if(job.node){job.node.classList.add('playing');try{job.node.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
   var v=APP?null:pick(job.lang);
-  if(!APP&&job.lang==='kn'&&!v){note('No Kannada voice found on this device. Install Kannada text-to-speech in your phone or browser settings; the Kannada text is still shown.');runQueue();return}
+  if(!APP&&job.lang==='kn'&&!v){knHelp();runQueue();return}
   if(v)note('');
   var parts=chunks(job.text);
   (function next(){
@@ -250,7 +255,7 @@ function runQueue(){
     if(!parts.length){runQueue();return}
     speakChunk(parts.shift(),job.lang,parseFloat($('rate').value)||0.92,v,function(ev){
       if(cancelled)return;
-      if(ev==='novoice'){note(job.lang==='kn'?'Kannada voice data is not installed on this phone.':'No English voice found.',true);runQueue();return}
+      if(ev==='novoice'){if(job.lang==='kn')knHelp();else note('No English voice was found.',['Open Settings, search for Text-to-speech, and choose an English voice.']);runQueue();return}
       next();
     });
   })();
@@ -277,12 +282,31 @@ function checkVoices(n){
   if(!APP||!APP.voiceStatus)return;
   var st=APP.voiceStatus('kn');
   if((st==='wait'||(APP.engine&&APP.engine()==='wait'))&&n<8){setTimeout(function(){checkVoices(n+1)},500);return}
-  if(APP.engine&&APP.engine()==='other'){note('Google Speech Services is not installed, so the phone\'s default voice is used. Install it for the clearest English and Kannada voice.',false,true);return}
-  if(st==='missing')note('Kannada voice data is not installed on this phone, so Kannada cannot be read aloud yet.',true);
+  if(APP.engine&&APP.engine()==='other'){note('The clearest voice comes from Google Speech Services, which is not installed. The phone\'s default voice is used for now.',['Tap Get Google voice below.','Tap Install in the Play Store and wait for it to finish.','Come back to this app. Any Kannada voice step will show here.'],false,true);return}
+  if(st==='missing'){knHelp();return}
+  note('');
+}
+function setupReminder(){
+  if(!(APP&&APP.getReminder&&APP.setReminder))return;
+  $('remind').hidden=false;
+  var cur=String(APP.getReminder()).split('|');
+  $('rem-on').checked=cur[0]==='1';
+  $('rem-time').value=pad(+cur[1]||7)+':'+pad(+cur[2]||0);
+  function save(){
+    var t=($('rem-time').value||'07:00').split(':');
+    APP.setReminder($('rem-on').checked,+t[0],+t[1]);
+    if($('rem-on').checked&&!(APP.notifAllowed&&!APP.notifAllowed()))toast('Reminder set for '+$('rem-time').value+' every day');
+    else if(!$('rem-on').checked)toast('Reminder off');
+  }
+  $('rem-on').addEventListener('change',save);$('rem-time').addEventListener('change',save);
+  window.__remind=function(ev){
+    if(ev==='denied'){$('rem-on').checked=false;toast('Notifications are blocked. Turn them on in Android Settings, Apps, Daily News Briefing, Notifications.')}
+    else if(ev==='ok')toast('Reminder set for '+$('rem-time').value+' every day');
+  };
 }
 function init(){
   purge();
-  if(APP){$('getapp').hidden=true;checkVoices(0);try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
+  if(APP){$('getapp').hidden=true;checkVoices(0);setupReminder();document.addEventListener('visibilitychange',function(){if(!document.hidden){try{APP.refreshVoices&&APP.refreshVoices()}catch(e){}setTimeout(function(){checkVoices(0)},1500)}});try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
   $('shareapp').addEventListener('click',function(){shareText('Daily News Briefing: top 10 India and Karnataka stories in English and Kannada, with a voice. Android app:',APK)});
   try{var m=localStorage.getItem('dnb:mode');if(m==='en'||m==='kn'||m==='both')setMode(m)}catch(e){}
   if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}

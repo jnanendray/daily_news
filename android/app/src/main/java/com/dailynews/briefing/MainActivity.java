@@ -1,6 +1,8 @@
 package com.dailynews.briefing;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.app.AlertDialog;
 import android.content.pm.PackageInfo;
 import android.os.Build;
@@ -41,6 +43,7 @@ public class MainActivity extends Activity {
     private static final String APK_URL = "https://github.com/jnanendray/daily_news/releases/download/apk-latest/DailyNewsBriefing.apk";
     private long lastUpdateCheck = 0;
     private boolean updateDialogOpen = false;
+    private int pendingH = 7, pendingM = 0;
     private TextToSpeech tts;
     private boolean usingGoogle = false;
     private boolean ttsReady = false;
@@ -92,6 +95,8 @@ public class MainActivity extends Activity {
         });
         setContentView(web);
         if (configured) web.loadUrl(liveUrl); else { usingBackup = true; web.loadUrl(ASSET_URL); }
+        Reminder.ensureChannel(this);
+        Reminder.schedule(this);
         checkForUpdate();
     }
 
@@ -178,6 +183,27 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void evalJs(final String js) {
+        runOnUiThread(() -> { if (web != null) web.evaluateJavascript(js, null); });
+    }
+
+    private boolean notifAllowed() {
+        return Build.VERSION.SDK_INT < 33 || checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
+        super.onRequestPermissionsResult(code, perms, results);
+        if (code != 77) return;
+        if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
+            Reminder.save(this, true, pendingH, pendingM);
+            Reminder.schedule(this);
+            evalJs("window.__remind&&window.__remind('ok')");
+        } else {
+            Reminder.save(this, false, pendingH, pendingM);
+            evalJs("window.__remind&&window.__remind('denied')");
+        }
+    }
+
     private void notifyJs(final String ev, final String id) {
         runOnUiThread(() -> {
             if (web != null) web.evaluateJavascript("window.__tts&&window.__tts('" + ev + "','" + id.replaceAll("[^A-Za-z0-9]", "") + "')", null);
@@ -214,6 +240,20 @@ public class MainActivity extends Activity {
             if (!ttsReady) return "wait";
             Locale l = "kn".equals(lang) ? new Locale("kn", "IN") : new Locale("en", "IN");
             return tts.isLanguageAvailable(l) >= TextToSpeech.LANG_AVAILABLE ? "ok" : "missing";
+        }
+        @JavascriptInterface public String getReminder() { return Reminder.describe(MainActivity.this); }
+        @JavascriptInterface public boolean notifAllowed() { return MainActivity.this.notifAllowed(); }
+        @JavascriptInterface public void setReminder(final boolean on, final int h, final int m) {
+            if (h < 0 || h > 23 || m < 0 || m > 59) return;
+            runOnUiThread(() -> {
+                pendingH = h; pendingM = m;
+                if (on && !notifAllowed()) { requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 77); return; }
+                Reminder.save(MainActivity.this, on, h, m);
+                Reminder.schedule(MainActivity.this);
+            });
+        }
+        @JavascriptInterface public void refreshVoices() {
+            runOnUiThread(() -> { if (tts != null && !usingGoogle) { ttsReady = false; tts.shutdown(); initTts(true); } });
         }
         @JavascriptInterface public String appVersion() { return installedName(); }
         @JavascriptInterface public String engine() { return !ttsReady ? "wait" : (usingGoogle ? "google" : "other"); }

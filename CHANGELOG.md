@@ -1,5 +1,12 @@
 # Change log
 
+## 2.3 - 2026-11-06
+- Daily reminder (Android): switch it on and pick a time; a notification "Your briefing is ready" opens the app. Asks for the notification permission once, only when switched on. Restored after restart or update.
+- Update check in the app, and builds now use one permanent signing key so updates install over the old version.
+- Fonts bundled: Inter (English) and Noto Sans Kannada, both SIL Open Font License 1.1. About 140 KB.
+- Step-by-step help when Google speech or the Kannada voice is missing, with buttons; rechecks when you come back to the app.
+- Automatic daily briefing run restored (06:42 India time).
+
 ## 2.1 - 2026-11-06
 - Speaking animation: an animated speaker with moving bars shows on the story being read, and a Speaking indicator stays in the top bar.
 - Android voice: the app now asks for Google Speech Services (com.google.android.tts) first, picks the best installed voice for the language, and offers a "Get Google voice" button if it is missing.

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The only permission: internet, used to load the news page and the reference links you tap. Voice needs no permission. -->
+    <!-- Internet loads the news page and the reference links you tap. Voice needs no permission. Notifications are asked once, only if you turn on the daily reminder. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Notifications (asked once, only if you turn on the daily reminder) and restoring the reminder after a restart. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Android 11+ needs these so the app can see the phone's text-to-speech engine and its voice installer. -->
     <queries>
         <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>
@@ -15,6 +18,13 @@
         android:usesCleartextTraffic="false"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
         <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="true"/>
+        <receiver android:name=".ReminderReceiver" android:exported="false"/>
+        <receiver android:name=".BootReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
         <activity android:name=".ReaderActivity" android:exported="false"
             android:configChanges="orientation|screenSize|keyboardHidden"/>
         <activity android:name=".MainActivity" android:exported="true"

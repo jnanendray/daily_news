@@ -11,3 +11,7 @@ Copyright (c) 2026 jnanendray. All rights reserved for this project's own code, 
 **Removal and corrections.** Open an issue at https://github.com/jnanendray/daily_news/issues to report an error or ask for any item to be removed.
 
 This notice is not legal advice. It has not been reviewed by a lawyer.
+
+**Fonts.** Inter (c) The Inter Project Authors and Noto Sans Kannada (c) The Noto Project Authors, licensed under the SIL Open Font License 1.1. Licence texts are in the `fonts` folder.
+
+**Notifications.** The Android app can show a daily reminder only if you switch it on, and only after Android asks for your permission. No data is collected or sent.

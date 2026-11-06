@@ -11,6 +11,8 @@ html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", html)
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + css + "\n</style>")
 html = html.replace('<script src="app.js"></script>', "<script>window.__EMBED=" + emb + ";</script>\n<script>\n" + js + "\n</script>")
 import base64
+css_fonts = lambda m: 'url("data:font/woff2;base64,' + base64.b64encode(open(os.path.join(root, m.group(1)),'rb').read()).decode() + '")'
+html = re.sub(r'url\("(fonts/[^"]+)"\)', css_fonts, html)
 logo = "data:image/svg+xml;base64," + base64.b64encode(rd("logo.svg").encode()).decode()
 html = html.replace('href="logo.svg"', 'href="' + logo + '"').replace('src="logo.svg"', 'src="' + logo + '"')
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "single.html")

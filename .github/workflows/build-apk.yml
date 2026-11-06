@@ -24,6 +24,7 @@ jobs:
         run: |
           mkdir -p app/src/main/assets
           cp ../index.html ../style.css ../app.js ../logo.svg app/src/main/assets/
+          cp -r ../fonts app/src/main/assets/fonts
           cp -r ../data app/src/main/assets/data
           du -sh app/src/main/assets
       - name: Set the version (always higher than the last build)
