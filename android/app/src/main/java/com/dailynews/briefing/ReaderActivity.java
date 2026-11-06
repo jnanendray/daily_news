@@ -52,8 +52,16 @@ public class ReaderActivity extends Activity {
             i.putExtra(Intent.EXTRA_TEXT, url);
             startActivity(Intent.createChooser(i, "Share"));
         });
+        Button browser = new Button(this);
+        browser.setText("Browser");
+        browser.setOnClickListener(v -> {      // some sites ask for a human check inside embedded views; the full browser passes it
+            String url = web.getUrl();
+            if (url == null || !url.startsWith("https://")) return;
+            try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) { }
+        });
         bar.addView(close);
         bar.addView(title, tp);
+        bar.addView(browser);
         bar.addView(share);
 
         web = new WebView(this);
@@ -63,6 +71,9 @@ public class ReaderActivity extends Activity {
         s.setAllowFileAccess(false);
         s.setAllowContentAccess(false);
         s.setSaveFormData(false);
+        s.setSupportZoom(true);
+        s.setBuiltInZoomControls(true);
+        s.setDisplayZoomControls(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView v, android.webkit.WebResourceRequest r) {

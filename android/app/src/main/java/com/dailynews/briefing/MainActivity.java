@@ -79,6 +79,9 @@ public class MainActivity extends Activity {
         s.setAllowContentAccess(false);
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
+        s.setSupportZoom(true);                 // pinch to zoom
+        s.setBuiltInZoomControls(true);
+        s.setDisplayZoomControls(false);
         web.addJavascriptInterface(new Bridge(), "NewsApp");
         initTts(true);
         web.setWebViewClient(new WebViewClient() {

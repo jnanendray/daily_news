@@ -19,3 +19,9 @@ Every briefing is gathered from Indian news organisations, and each story names 
 **Keywords.** On at most half of the stories, add 1 or 2 `kw` entries for terms an ordinary reader may not know (an institution, a technical word, an idiom). Format: {"w": the term exactly as it appears in `t` (English summary), "m": one or two sentence English meaning, "kw": the same term as it appears in the Kannada summary `k` (omit if it does not appear exactly), "km": Kannada meaning}. Do not highlight names of people, places or common words, and never more than 2 per story.
 
 **Data format** (`data/YYYY-MM-DD.json`): `in` and `ka` arrays of up to 10 stories with `h`, `t` (English), `kh`, `k` (Kannada), `s` (sources), `w` (when), `ic` (icon), `tn` (tone t1 to t5), optional `p` (1 = important), `u` (https link to the original report), the More details fields `d`, `kd`, `ds`, and keyword entries `kw`.
+
+## Format update (2.6)
+- `data/<date>.json`: `{"date","in":[],"ka":[],"wd":[]}`. Number of stories follows importance (about 6 to 25 per section; fewer when little happened).
+- Each story may add `c`: up to 3 of school, college, civil, tech, gov, farm, sci, med, sport, world. Add `x:1` for stories that should appear only in their category and not in Top.
+- `wd` holds foreign-affairs stories from reputed outlets (The Hindu, Indian Express, NDTV, DD News and similar).
+- More details go in `data/more/<date>.json` as `{"in-0":{"d","kd","ds":[{"n","u"}]}}` keyed by section and index. Keep each `u` a real link seen in results. Never add search-engine links.

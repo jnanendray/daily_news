@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5,viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0C2142">
@@ -13,6 +13,9 @@
 <body data-mode="both">
 <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false"><defs>
 <symbol id="ic-speaker" viewBox="0 0 48 48"><path d="M8 19h7l9-8v26l-9-8H8z"/><path d="M31 18a9 9 0 0 1 0 12M36 13a16 16 0 0 1 0 22"/></symbol>
+<symbol id="ic-share" viewBox="0 0 48 48"><circle cx="12" cy="24" r="5"/><circle cx="35" cy="11" r="5"/><circle cx="35" cy="37" r="5"/><path d="M16.5 21.5l14-8M16.5 26.5l14 8"/></symbol>
+<symbol id="ic-gear" viewBox="0 0 48 48"><circle cx="24" cy="24" r="6.5"/><path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M37.4 10.6l-4.2 4.2M14.8 33.2l-4.2 4.2"/></symbol>
+<symbol id="ic-refresh" viewBox="0 0 48 48"><path d="M39 24a15 15 0 1 1-4.4-10.6"/><path d="M39 7v8h-8"/></symbol>
 <symbol id="ic-cal" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="32" rx="6"/><path d="M6 19h36M15 5v8M33 5v8"/></symbol>
 <symbol id="ic-cyclone" viewBox="0 0 48 48"><circle cx="24" cy="24" r="2.5"/><path d="M24 12c7-1 12 4 11 11"/><path d="M36 24c1 7-4 12-11 11"/><path d="M24 36c-7 1-12-4-11-11"/><path d="M12 24c-1-7 4-12 11-11"/></symbol>
 <symbol id="ic-chart" viewBox="0 0 48 48"><path d="M8 40h32M8 40V8"/><path d="M13 31l8-9 6 5 12-14"/><path d="M31 13h8v8"/></symbol>
@@ -44,29 +47,20 @@
 
 <div class="wrap">
   <header class="hero">
+    <div class="corner">
+      <button type="button" class="ibtn" id="shareapp" aria-label="Share app link" title="Share app link"><svg class="ico" aria-hidden="true"><use href="#ic-share"/></svg></button>
+      <button type="button" class="ibtn" id="settings" aria-label="Settings" title="Settings"><svg class="ico" aria-hidden="true"><use href="#ic-gear"/></svg></button>
+    </div>
     <div class="brand"><img class="logo" src="logo.svg" width="48" height="48" alt=""><div class="eyebrow">Daily News Briefing</div></div>
     <h1 id="dateline">Loading</h1>
     <p class="kn-date" id="dateline-kn" lang="kn"></p>
-    <p class="sub">Top 10 from India and top 10 from Karnataka, with a spoken version in English and Kannada.</p>
+    <p class="sub">India, Karnataka and world stories, with study and interest topics, spoken in English and Kannada.</p>
     <div class="tools">
       <div class="seg" role="group" aria-label="Language">
         <button type="button" id="l-en" aria-pressed="false">English</button>
         <button type="button" id="l-kn" aria-pressed="false" lang="kn">ಕನ್ನಡ</button>
         <button type="button" id="l-both" aria-pressed="true">Both</button>
       </div>
-      <a class="chip" id="getapp" href="https://github.com/jnanendray/daily_news/releases/download/apk-latest/DailyNewsBriefing.apk" rel="noopener noreferrer">Get Android app</a>
-      <button type="button" class="chip" id="shareapp">Share app link</button>
-      <div class="remind" id="remind" hidden>
-        <label class="speed" for="rem-on"><input type="checkbox" id="rem-on"> Daily reminder</label>
-        <input type="time" id="rem-time" value="07:00" aria-label="Reminder time">
-      </div>
-      <label class="speed" for="rate">Voice speed
-        <select id="rate">
-          <option value="0.8">Slow</option>
-          <option value="0.92" selected>Normal</option>
-          <option value="1.1">Fast</option>
-        </select>
-      </label>
     </div>
   </header>
 
@@ -77,7 +71,11 @@
     </button>
     <button type="button" class="nav" id="next" aria-label="Next day">&#8250;</button>
     <button type="button" class="chip" id="latest">Latest</button>
+    <button type="button" class="nav" id="refresh" aria-label="Refresh" title="Refresh"><svg class="ico" aria-hidden="true"><use href="#ic-refresh"/></svg></button>
     <button type="button" class="chip" id="stop">Stop</button>
+    <label class="rate" for="rate"><span class="sr">Voice speed</span><select id="rate" aria-label="Voice speed">
+      <option value="0.5">0.5&times;</option><option value="0.75">0.75&times;</option><option value="1" selected>1&times;</option><option value="1.25">1.25&times;</option><option value="1.5">1.5&times;</option><option value="1.75">1.75&times;</option><option value="2">2&times;</option>
+    </select></label>
     <span class="speaking" id="speaking" hidden><svg class="ico" aria-hidden="true"><use href="#ic-speaker"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="speaking-t">Speaking</span></span>
     <div class="cal" id="cal" role="dialog" aria-label="Choose a date" hidden>
       <div class="cal-head">
@@ -93,22 +91,38 @@
   <div class="note" id="voicenote" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <nav class="cats" id="cats" aria-label="Categories"></nav>
+  <div class="subcats" id="subcats" hidden></div>
+  <div class="pull" id="pull" hidden><span>Pull down to refresh</span></div>
+
   <main id="main">
-    <section aria-labelledby="h-in">
+    <section id="sec-in" aria-labelledby="h-in">
       <div class="sec-head">
-        <h2 id="h-in">India<small>Top 10 national stories</small></h2>
+        <h2 id="h-in">India<small>National stories &middot; <span id="cnt-in"></span></small></h2>
         <button type="button" class="play" data-play="in">Play all India</button>
       </div>
       <ol id="list-in" class="list"></ol>
     </section>
-    <section aria-labelledby="h-ka">
+    <section id="sec-ka" aria-labelledby="h-ka">
       <div class="sec-head">
-        <h2 id="h-ka" class="ka">Karnataka<small>Top 10 state stories</small></h2>
+        <h2 id="h-ka" class="ka">Karnataka<small>State stories &middot; <span id="cnt-ka"></span></small></h2>
         <button type="button" class="play" data-play="ka">Play all Karnataka</button>
       </div>
       <ol id="list-ka" class="list"></ol>
     </section>
+    <section id="sec-wd" aria-labelledby="h-wd" hidden>
+      <div class="sec-head">
+        <h2 id="h-wd">World<small>Foreign affairs &middot; <span id="cnt-wd"></span></small></h2>
+        <button type="button" class="play" data-play="wd">Play all World</button>
+      </div>
+      <ol id="list-wd" class="list"></ol>
+    </section>
+    <p class="empty" id="catempty" hidden>No stories in this category for this day yet. Sports, world and study topics fill in as each daily briefing is written.</p>
   </main>
+  <section id="digest" hidden aria-label="All articles in brief">
+    <div class="sec-head"><h2>Summary<small>Every article in one place. Tap one to open it.</small></h2></div>
+    <div id="digest-body"></div>
+  </section>
 
   <div class="sheet" id="sheet" hidden>
     <div class="sheet-bg" id="sheet-bg"></div>
@@ -119,15 +133,15 @@
   </div>
 
   <footer>
-    <p>Pick any past day from the calendar, or swipe left and right on a phone. Every story has a Share button and a link to find the original report.</p>
+    <p>Pick any past day from the calendar, or swipe left and right on a phone. Pull down at the top, or tap the refresh button, to check for new stories. Every story has a Share button.</p>
     <p><button type="button" class="chip" id="reportbtn">Report a problem or request</button></p>
     <details class="legal">
       <summary>About, copyright and privacy</summary>
       <p><strong>Copyright.</strong> &copy; 2026 jnanendray. All rights reserved for this app's own code, design and icons. News belongs to the publishers named on each story. Their names and trademarks belong to them and are used only to credit the source.</p>
-      <p><strong>Sources.</strong> India stories are gathered from Indian news channels and newspapers. Karnataka stories come only from reputed Karnataka-based channels and newspapers. Each story ends with a small source line naming the outlet, linked to its website. Stories marked Important were reported recently and matter to many people.</p>
+      <p><strong>Sources.</strong> India stories are gathered from Indian news channels and newspapers. Karnataka stories come only from reputed Karnataka-based channels and newspapers. Each story ends with a small source line naming the outlet, linked to its website. Stories marked Important were reported recently and matter to many people. The number of stories changes with the news. The Students, General, Sports and Foreign affairs tabs filter the same stories.</p>
       <p><strong>Fonts.</strong> Inter and Noto Sans Kannada, both under the SIL Open Font License 1.1 (see the fonts folder).</p>
       <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
-      <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. The Android app can show a daily reminder at a time you choose; it needs the notification permission, which you can refuse or turn off at any time. Links open in the in-app reader and those sites have their own policies.</p>
+      <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. The Android app can show a daily reminder at a time you choose; it needs the notification permission, which you can refuse or turn off at any time. Links open in the in-app reader and those sites have their own policies. Your text size, theme, voice speed and category are saved on your device.</p>
       <p><strong>Problem reports.</strong> Nothing is sent automatically. If something goes wrong, the app keeps a short local log (error messages, app version, phone model, no personal details). It is shared only if you choose Report a problem and then tap Share or Open on GitHub. Reports help us fix faults and improve the app.</p>
       <p><strong>Removal requests.</strong> To report an error or ask for any item to be removed, open an issue at <a href="https://github.com/jnanendray/daily_news/issues" rel="noopener noreferrer">github.com/jnanendray/daily_news</a>. See CHANGELOG.md.</p>
       <p id="appver" hidden></p>

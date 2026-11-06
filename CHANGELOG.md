@@ -36,3 +36,12 @@
 
 ## 1.0 - 2026-10-28
 - First version: top 10 India and Karnataka stories in English and Kannada, spoken playback, Android app.
+
+## 2.6
+- Categories: Top, Students (school, college, civil services), General (technology, government schemes, farmers, science, medical), Sports, Foreign affairs, and a Summary tab listing every article. Stories carry `c` (category codes), `x:1` (category-only, hidden from Top) and a third section `wd` (world).
+- The number of stories per section now follows the news (up to 40) instead of a fixed 10.
+- More details load on demand from `data/more/<date>.json` with a loading spinner and a retry button. Inline `d`/`kd`/`ds` still work.
+- Removed the Google News search links. They triggered a "are you a human" check in the in-app reader. Only direct report links and outlet home pages are shown. The in-app reader has a Browser button for sites that still ask for a human check.
+- Settings: text size, themes (Auto uses system text and background colours, Light, Dark, Eye comfort), reminder. Pinch zoom works. Voice speed uses numbers (0.5x to 2x) and is remembered, as are the theme, text size and category.
+- Refresh button, pull down to refresh, and a refresh when the app returns after 30 minutes.
+- Share-app and settings buttons moved to the top corner.
