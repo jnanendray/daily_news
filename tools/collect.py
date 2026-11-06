@@ -5,7 +5,9 @@ data/live/YYYY-MM-DD.json. Only headline, outlet name and link are kept. Standar
 
 Usage: collect.py [--days N] [--date YYYY-MM-DD] [--mock file.json] [--out data/live]
 """
-import argparse, html, json, os, re, sys, time, urllib.parse, urllib.request
+import argparse, html, json, os, re, sys, time, urllib.parse, urllib.request, urllib.error
+import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
 from datetime import datetime, timedelta, timezone
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -22,6 +24,45 @@ DOMS = {
  'publictv.in': 'Public TV', 'kannada.asianetnews.com': 'Asianet Suvarna News',
  'samyuktakarnataka.com': 'Samyukta Karnataka', 'kannada.news18.com': 'News18 Kannada',
 }
+# Public RSS feeds of the outlets themselves. (url, outlet, section hint: in/ka/wd, category hint or '', language)
+FEEDS = [
+ ('https://www.thehindu.com/news/national/feeder/default.rss', 'The Hindu', 'in', '', 'en'),
+ ('https://www.thehindu.com/news/international/feeder/default.rss', 'The Hindu', 'wd', 'world', 'en'),
+ ('https://www.thehindu.com/news/national/karnataka/feeder/default.rss', 'The Hindu', 'ka', '', 'en'),
+ ('https://www.thehindu.com/sport/feeder/default.rss', 'The Hindu', 'in', 'sport', 'en'),
+ ('https://www.thehindu.com/business/feeder/default.rss', 'The Hindu', 'in', 'business', 'en'),
+ ('https://indianexpress.com/section/india/feed/', 'Indian Express', 'in', '', 'en'),
+ ('https://indianexpress.com/section/world/feed/', 'Indian Express', 'wd', 'world', 'en'),
+ ('https://indianexpress.com/section/sports/feed/', 'Indian Express', 'in', 'sport', 'en'),
+ ('https://indianexpress.com/section/cities/bangalore/feed/', 'Indian Express', 'ka', '', 'en'),
+ ('https://feeds.feedburner.com/ndtvnews-india-news', 'NDTV', 'in', '', 'en'),
+ ('https://feeds.feedburner.com/ndtvnews-world-news', 'NDTV', 'wd', 'world', 'en'),
+ ('https://feeds.feedburner.com/ndtvsports-latest', 'NDTV', 'in', 'sport', 'en'),
+ ('https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml', 'Hindustan Times', 'in', '', 'en'),
+ ('https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml', 'Hindustan Times', 'wd', 'world', 'en'),
+ ('https://www.hindustantimes.com/feeds/rss/cricket/rssfeed.xml', 'Hindustan Times', 'in', 'sport', 'en'),
+ ('https://www.hindustantimes.com/feeds/rss/cities/bengaluru-news/rssfeed.xml', 'Hindustan Times', 'ka', '', 'en'),
+ ('https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms', 'Times of India', 'in', '', 'en'),
+ ('https://timesofindia.indiatimes.com/rssfeeds/296589292.cms', 'Times of India', 'wd', 'world', 'en'),
+ ('https://timesofindia.indiatimes.com/rssfeeds/4719148.cms', 'Times of India', 'in', 'sport', 'en'),
+ ('https://timesofindia.indiatimes.com/rssfeeds/2950623.cms', 'Times of India', 'ka', '', 'en'),
+ ('https://www.indiatoday.in/rss/1206514', 'India Today', 'in', '', 'en'),
+ ('https://www.deccanherald.com/rss-feed/state', 'Deccan Herald', 'ka', '', 'en'),
+ ('https://www.deccanherald.com/rss-feed/national', 'Deccan Herald', 'in', '', 'en'),
+ ('https://www.deccanherald.com/rss-feed/sports', 'Deccan Herald', 'in', 'sport', 'en'),
+ ('https://www.deccanherald.com/rss-feed/international', 'Deccan Herald', 'wd', 'world', 'en'),
+ ('https://www.newindianexpress.com/Karnataka/rssfeed/?id=190&getXmlFeed=true', 'New Indian Express', 'ka', '', 'en'),
+ ('https://www.business-standard.com/rss/latest.rss', 'Business Standard', 'in', 'business', 'en'),
+ ('https://www.livemint.com/rss/news', 'Mint', 'in', '', 'en'),
+ ('https://www.prajavani.net/rss', 'Prajavani', 'ka', '', 'kn'),
+ ('https://www.udayavani.com/feed', 'Udayavani', 'ka', '', 'kn'),
+ ('https://vijaykarnataka.com/rssfeedsdefault.cms', 'Vijay Karnataka', 'ka', '', 'kn'),
+ ('https://www.kannadaprabha.com/rss', 'Kannada Prabha', 'ka', '', 'kn'),
+ ('https://tv9kannada.com/feed', 'TV9 Kannada', 'ka', '', 'kn'),
+ ('https://publictv.in/feed', 'Public TV', 'ka', '', 'kn'),
+ ('https://kannada.asianetnews.com/rss', 'Asianet Suvarna News', 'ka', '', 'kn'),
+ ('https://kannada.news18.com/rss/karnataka.xml', 'News18 Kannada', 'ka', '', 'kn'),
+]
 KA_RE = re.compile(r'\b(karnataka|bengaluru|bangalore|mysuru|mysore|hubballi|hubli|dharwad|belagavi|belgaum|mangaluru|mangalore|kalaburagi|gulbarga|gadag|shivamogga|shimoga|ballari|bellary|udupi|tumakuru|hassan|mandya|bidar|vijayapura|siddaramaiah|shivakumar|bbmp|ksrtc|bmtc|namma metro|cauvery|vidhana soudha|kannada)\b', re.I)
 WORLD_RE = re.compile(r'\b(u\.s\.|usa|america|american|trump|biden|china|chinese|pakistan|russia|russian|ukraine|israel|gaza|iran|united nations|un general|uk|britain|british|london|canada|australia|japan|bangladesh|nepal|sri lanka|maldives|afghanistan|taliban|europe|european|nato|g20|brics|saudi|uae|dubai|paris|france|germany|turkey|syria|lebanon|korea|taiwan|singapore|myanmar|africa|white house|pentagon|kremlin|beijing|washington|moscow)\b', re.I)
 CAT_RE = [
@@ -85,24 +126,73 @@ def query_url(date):
         'startdatetime': st.strftime('%Y%m%d%H%M%S'), 'enddatetime': en.strftime('%Y%m%d%H%M%S')})
 
 
-def fetch(url, tries=4):
-    last = None
-    for i in range(tries):
-        try:
-            req = urllib.request.Request(url, headers={'User-Agent': 'daily-news-briefing/1.0 (+https://github.com/jnanendray/daily_news)'})
-            with urllib.request.urlopen(req, timeout=60) as r:
-                raw = r.read(6_000_000).decode('utf-8', 'replace')
-            return json.loads(raw)
-        except Exception as e:                      # rate limit text, timeouts, bad JSON
-            last = e
-            time.sleep(8 * (i + 1))
-    raise RuntimeError('GDELT request failed: %s' % last)
+UA = {'User-Agent': 'Mozilla/5.0 (compatible; daily-news-briefing/1.0; +https://github.com/jnanendray/daily_news)'}
 
 
-def build(j, date):
-    arts = j.get('articles') if isinstance(j, dict) else None
+def get_bytes(url, limit=3_000_000, timeout=30):
+    req = urllib.request.Request(url, headers=UA)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read(limit)
+
+
+def fetch_gdelt(url):
+    """One attempt only. GDELT answers shared cloud addresses with 429, so this is a bonus, not a dependency."""
+    return json.loads(get_bytes(url, 6_000_000, 60).decode('utf-8', 'replace'))
+
+
+def text_of(e):
+    return re.sub(r'\s+', ' ', html.unescape(''.join(e.itertext()))).strip() if e is not None else ''
+
+
+def read_feed(url, name, sec, cat, lang, today):
+    """Returns (items, note). Items are {title,url,name,kn,sec,cat,date}."""
+    try:
+        raw = open(url[7:], "rb").read() if url.startswith("file://") else get_bytes(url)
+    except Exception as e:
+        return [], 'unreachable (%s)' % str(e)[:60]
+    if b'<!ENTITY' in raw[:4000] or b'<!DOCTYPE' in raw[:200] and b'[' in raw[:600]:
+        return [], 'skipped (entity declarations)'
+    try:
+        root = ET.fromstring(raw)
+    except Exception:
+        return [], 'not valid XML'
+    out = []
+    for it in root.iter():
+        tag = it.tag.split('}')[-1]
+        if tag not in ('item', 'entry'):
+            continue
+        title, link, when = '', '', None
+        for ch in it:
+            t = ch.tag.split('}')[-1]
+            if t == 'title':
+                title = text_of(ch)
+            elif t == 'link':
+                link = (ch.get('href') or text_of(ch) or '').strip()
+            elif t in ('pubDate', 'published', 'updated', 'date') and when is None:
+                try:
+                    when = parsedate_to_datetime(text_of(ch))
+                except Exception:
+                    try:
+                        when = datetime.fromisoformat(text_of(ch).replace('Z', '+00:00'))
+                    except Exception:
+                        when = None
+        if link.startswith('http://'):
+            link = 'https://' + link[7:]
+        title = re.sub(r'\s+', ' ', title)[:200]
+        if not link.startswith('https://') or len(link) > 480 or len(title) < 24:
+            continue
+        if when is not None and when.tzinfo is None:
+            when = when.replace(tzinfo=timezone.utc)
+        day = (when.astimezone(IST).date() if when else today).isoformat()
+        out.append({'title': title, 'url': link, 'name': name, 'kn': lang == 'kn' or is_kn(title), 'sec': sec, 'cat': cat, 'date': day})
+        if len(out) >= 40:
+            break
+    return out, 'ok, %d items' % len(out)
+
+
+def from_gdelt(j, date):
     items = []
-    for a in arts or []:
+    for a in (j.get('articles') if isinstance(j, dict) else None) or []:
         if not isinstance(a, dict):
             continue
         url, title = a.get('url'), a.get('title')
@@ -110,16 +200,18 @@ def build(j, date):
             continue
         if url.lower().startswith('http://'):
             url = 'https://' + url[7:]
-        if not url.startswith('https://') or len(url) > 480:
-            continue
         name = outlet(a.get('domain'))
         lang = str(a.get('language') or '').lower()
-        if not name or lang not in ('english', 'kannada'):
-            continue
         title = re.sub(r'\s+', ' ', html.unescape(title)).strip()[:200]
-        if len(title) < 24:
+        if not name or lang not in ('english', 'kannada') or not url.startswith('https://') or len(url) > 480 or len(title) < 24:
             continue
-        items.append({'title': title, 'url': url, 'name': name, 'kn': lang == 'kannada' or is_kn(title), 'tk': toks(title)})
+        items.append({'title': title, 'url': url, 'name': name, 'kn': lang == 'kannada' or is_kn(title), 'sec': '', 'cat': '', 'date': date})
+    return items
+
+
+def build(items, date):
+    for it in items:
+        it['tk'] = toks(it['title'])
     clusters = []
     for it in items:
         for c in clusters:
@@ -131,18 +223,19 @@ def build(j, date):
             clusters.append({'rep': it, 'kn': it['kn'], 'names': [it['name']]})
     for c in clusters:
         r = c['rep']
-        sec = 'in'
+        sec = r.get('sec') or 'in'
         if r['kn']:
             sec = 'ka'
-        elif r['name'] in ('Deccan Herald', 'Bangalore Mirror') and KA_RE.search(r['title']):
-            sec = 'ka'
-        elif WORLD_RE.search(r['title']):
-            sec = 'wd'
-        cats = []
+        elif not r.get('sec'):
+            if r['name'] in ('Deccan Herald', 'Bangalore Mirror') and KA_RE.search(r['title']):
+                sec = 'ka'
+            elif WORLD_RE.search(r['title']):
+                sec = 'wd'
+        cats = [r['cat']] if r.get('cat') else []
         for k, rx in CAT_RE:
-            if len(cats) < 3 and rx.search(r['title']):
+            if len(cats) < 3 and k not in cats and rx.search(r['title']):
                 cats.append(k)
-        if sec == 'wd':
+        if sec == 'wd' and 'world' not in cats:
             cats.insert(0, 'world')
         c['sec'], c['cats'], c['score'] = sec, cats[:3], len(c['names'])
     out = {'date': date, 'in': [], 'ka': [], 'wd': []}
@@ -160,45 +253,91 @@ def build(j, date):
             'p': 1 if (n < 3 and c['score'] >= (2 if c['sec'] == 'ka' else 3)) else 0,
             'x': 1 if n >= 12 else 0, 'c': c['cats'], 'u': r['url'], 'ic': ic, 'tn': 't%d' % (1 + n % 5), 'lv': 1})
     out['gen'] = datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
-    out['src'] = 'GDELT Project'
+    out['src'] = 'Outlet RSS feeds, GDELT Project'
     return out
+
+
+def load_raw(path):
+    try:
+        v = json.load(open(path, encoding='utf-8'))
+        return [x for x in v if isinstance(x, dict) and 'url' in x and 'title' in x]
+    except Exception:
+        return []
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--days', type=int, default=3)
     ap.add_argument('--date')
-    ap.add_argument('--mock')
+    ap.add_argument('--mock', help='GDELT-style JSON file used instead of the network')
+    ap.add_argument('--mock-feed', help='RSS file used for every feed instead of the network')
     ap.add_argument('--out', default='data/live')
+    ap.add_argument('--no-gdelt', action='store_true')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
+    rawdir = os.path.join(a.out, 'raw')
+    os.makedirs(rawdir, exist_ok=True)
     today = datetime.now(IST).date()
-    dates = [a.date] if a.date else [(today - timedelta(days=i)).isoformat() for i in range(max(1, min(a.days, 30)))]
-    ok = 0
-    for i, d in enumerate(dates):
-        try:
-            if a.mock:
-                j = json.load(open(a.mock, encoding='utf-8'))
-            else:
-                if i:
-                    time.sleep(6)                   # GDELT asks for one request every 5 seconds
-                j = fetch(query_url(d))
-            data = build(j, d)
-            n = len(data['in']) + len(data['ka']) + len(data['wd'])
-            if n == 0 and os.path.exists(os.path.join(a.out, d + '.json')):
-                print(d, 'no results, keeping the existing file')
+    want = [a.date] if a.date else [(today - timedelta(days=i)).isoformat() for i in range(max(1, min(a.days, 30)))]
+    fresh = {d: [] for d in want}
+    # 1. the outlets' own feeds (recent items only)
+    good = 0
+    for url, name, sec, cat, lang in FEEDS:
+        if a.mock_feed:
+            items, note = read_feed('file://' + os.path.abspath(a.mock_feed), name, sec, cat, lang, today)
+        else:
+            items, note = read_feed(url, name, sec, cat, lang, today)
+        print('feed %-22s %-3s %s' % (name, sec, note), '<-', url.split('/')[2])
+        good += 1 if items else 0
+        for it in items:
+            if it['date'] in fresh:
+                fresh[it['date']].append(it)
+    # 2. GDELT index for older days (often refused from cloud servers; one attempt each, stop on first refusal)
+    if not a.no_gdelt:
+        for i, d in enumerate(want):
+            if a.date is None and d == want[0] and not a.mock:
+                pass
+            try:
+                if a.mock:
+                    j = json.load(open(a.mock, encoding='utf-8'))
+                else:
+                    if i:
+                        time.sleep(6)
+                    j = fetch_gdelt(query_url(d))
+                fresh[d] += from_gdelt(j, d)
+                print('gdelt', d, 'ok')
+            except urllib.error.HTTPError as e:
+                print('gdelt', d, 'refused: HTTP', e.code)
+                if e.code == 429:
+                    break
+            except Exception as e:
+                print('gdelt', d, 'failed:', str(e)[:80])
+    wrote = 0
+    for d in want:
+        rawp = os.path.join(rawdir, d + '.json')
+        merged, seen = [], set()
+        for it in load_raw(rawp) + fresh[d]:
+            if it['url'] in seen:
                 continue
-            with open(os.path.join(a.out, d + '.json'), 'w', encoding='utf-8') as f:
-                json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
-            print(d, 'in=%d ka=%d wd=%d' % (len(data['in']), len(data['ka']), len(data['wd'])))
-            ok += 1
-        except Exception as e:
-            print(d, 'FAILED:', e, file=sys.stderr)
+            seen.add(it['url'])
+            merged.append({k: it.get(k, '') for k in ('title', 'url', 'name', 'kn', 'sec', 'cat', 'date')})
+        if not merged:
+            print(d, 'nothing collected')
+            continue
+        data = build([dict(x) for x in merged], d)
+        n = len(data['in']) + len(data['ka']) + len(data['wd'])
+        with open(rawp, 'w', encoding='utf-8') as f:
+            json.dump(merged[:600], f, ensure_ascii=False, separators=(',', ':'))
+        with open(os.path.join(a.out, d + '.json'), 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+        print(d, 'in=%d ka=%d wd=%d (from %d headlines)' % (len(data['in']), len(data['ka']), len(data['wd']), len(merged)))
+        wrote += 1
     cut = (today - timedelta(days=90)).isoformat()
-    for f in os.listdir(a.out):                     # keep 90 days
-        if re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json', f) and f[:10] < cut:
-            os.remove(os.path.join(a.out, f))
-    sys.exit(0 if ok else 1)
+    for folder in (a.out, rawdir):                  # keep 90 days
+        for f in os.listdir(folder):
+            if re.fullmatch(r'\d{4}-\d{2}-\d{2}\.json', f) and f[:10] < cut:
+                os.remove(os.path.join(folder, f))
+    sys.exit(0 if wrote else 1)
 
 
 if __name__ == '__main__':
