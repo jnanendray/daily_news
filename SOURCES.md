@@ -4,9 +4,10 @@ Every briefing is gathered from Indian news organisations, and each story names 
 
 **India (national).** Indian news channels and newspapers, for example NDTV, India Today, News18, ABP News, Zee News, DD News, The Hindu, The Indian Express, Hindustan Times, The Times of India, Business Standard, Mint.
 
-**Karnataka (state).** The state's local channels and newspapers, for example Prajavani, Vijay Karnataka, Udayavani, Kannada Prabha, Vijayavani, TV9 Kannada, Asianet Suvarna News, Public TV, Zee Kannada, Deccan Herald, The Hindu (Karnataka), The News Minute.
+**Karnataka (state).** Only reputed Karnataka-based channels and newspapers, for example Prajavani, Vijay Karnataka, Udayavani, Kannada Prabha, Vijayavani, Samyukta Karnataka, Deccan Herald, Bangalore Mirror, TV9 Kannada, Asianet Suvarna News, Public TV, Zee Kannada. Do not use national aggregators or national outlets for Karnataka stories.
 
 **Rules.**
+- Every story must name its source outlet(s) in `s`; the page shows them as a small linked line at the end of the story. Use the exact outlet names listed above so the link is added.
 - Summaries and headlines are written in original words; no photographs or full articles are copied.
 - Prefer stories from the last 24 hours; show the real date in the `w` field when older.
 - Set `"p": 1` on a story that is both recent and important to many people. It shows an Important badge.

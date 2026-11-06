@@ -74,6 +74,19 @@ function icon(name){
   var s=document.createElementNS(NS,'svg');s.setAttribute('aria-hidden','true');
   var u=document.createElementNS(NS,'use');u.setAttribute('href','#ic-'+name);s.appendChild(u);return s;
 }
+var SITES={'ndtv':'https://www.ndtv.com','india today':'https://www.indiatoday.in','news18':'https://www.news18.com','abp news':'https://news.abplive.com','zee news':'https://zeenews.india.com','dd news':'https://ddnews.gov.in','the hindu':'https://www.thehindu.com','indian express':'https://indianexpress.com','hindustan times':'https://www.hindustantimes.com','times of india':'https://timesofindia.indiatimes.com','business standard':'https://www.business-standard.com','mint':'https://www.livemint.com','economic times':'https://economictimes.indiatimes.com','india tv news':'https://www.indiatvnews.com','india tv':'https://www.indiatvnews.com','moneycontrol':'https://www.moneycontrol.com','theprint':'https://theprint.in','espn india':'https://www.espn.in','prajavani':'https://www.prajavani.net','vijay karnataka':'https://vijaykarnataka.com','udayavani':'https://www.udayavani.com','kannada prabha':'https://www.kannadaprabha.com','vijayavani':'https://www.vijayavani.net','samyukta karnataka':'https://samyuktakarnataka.com','tv9 kannada':'https://tv9kannada.com','asianet suvarna news':'https://kannada.asianetnews.com','suvarna news':'https://kannada.asianetnews.com','public tv':'https://publictv.in','zee kannada':'https://zeenews.india.com/kannada','deccan herald':'https://www.deccanherald.com','the news minute':'https://www.thenewsminute.com','bangalore mirror':'https://bangaloremirror.indiatimes.com'};
+function siteUrl(name){var k=name.toLowerCase().replace(/^the\s+/,'').trim();return SITES[k]||SITES['the '+k]||SITES[name.toLowerCase().trim()]||''}
+function sourceLine(it){
+  var p=el('p','srcline');p.appendChild(document.createTextNode('Source: '));
+  var names=it.s.split(/\s*(?:,|&|\band\b)\s*/).filter(Boolean);
+  names.forEach(function(n,i){
+    if(i)p.appendChild(document.createTextNode(' · '));
+    var u=(i===0&&it.u)?it.u:siteUrl(n);
+    if(u){var a=el('a',null,n);a.href=u;a.target='_blank';a.rel='noopener noreferrer';p.appendChild(a)}
+    else p.appendChild(document.createTextNode(n));
+  });
+  return p;
+}
 function card(sec,it,i){
   var li=el('li','card fade');li.dataset.sec=sec;li.dataset.i=i;li.id='a-'+sec+'-'+i;
   var tile=el('div','tile '+it.tn);tile.appendChild(icon(it.ic));
@@ -92,7 +105,7 @@ function card(sec,it,i){
   a.href=it.u||('https://news.google.com/search?q='+encodeURIComponent(it.h)+'&hl=en-IN&gl=IN&ceid=IN:en');
   a.target='_blank';a.rel='noopener noreferrer';row.appendChild(a);
   if(it.p){li.classList.add('hot');b.appendChild(el('span','badge','Important'))}
-  b.appendChild(en);b.appendChild(kn);if(it.s)b.appendChild(el('p','why','Source: '+it.s));b.appendChild(row);
+  b.appendChild(en);b.appendChild(kn);b.appendChild(row);if(it.s)b.appendChild(sourceLine(it));
   li.appendChild(tile);li.appendChild(b);return li;
 }
 function fillList(id,arr,sec){

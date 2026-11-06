@@ -30,8 +30,7 @@
    "s": "The Hindu",
    "w": "Latest",
    "ic": "building",
-   "tn": "t5",
-   "p": 1
+   "tn": "t5"
   },
   {
    "h": "Videocon promoter Venugopal Dhoot declared bankrupt",
@@ -81,7 +80,8 @@
    "s": "The Hindu",
    "w": "Latest",
    "ic": "chart",
-   "tn": "t4"
+   "tn": "t4",
+   "p": 1
   },
   {
    "h": "Bengaluru airport moves to mixed-mode runway use from 11 November",
