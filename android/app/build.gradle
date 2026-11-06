@@ -6,8 +6,8 @@ android {
         applicationId 'com.dailynews.briefing'
         minSdk 24
         targetSdk 34
-        versionCode (System.getenv('VERSION_CODE') ?: '3').toInteger()
-        versionName System.getenv('VERSION_NAME') ?: '2.2'
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '3')
+        versionName (System.getenv('VERSION_NAME') ?: '2.2')
     }
     signingConfigs {
         release {
