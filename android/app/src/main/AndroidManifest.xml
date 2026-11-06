@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The only permission: internet, used only to load your own news page (address in strings.xml). -->
+    <!-- The only permission: internet, used to load the news page and the reference links you tap. Voice needs no permission. -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Android 11+ needs these so the app can see the phone's text-to-speech engine and its voice installer. -->
+    <queries>
+        <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>
+        <intent><action android:name="android.speech.tts.engine.INSTALL_TTS_DATA"/></intent>
+    </queries>
     <application
         android:label="Daily News Briefing"
         android:allowBackup="false"
         android:usesCleartextTraffic="false"
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing" android:value="true"/>
+        <activity android:name=".ReaderActivity" android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
         <activity android:name=".MainActivity" android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden">
             <intent-filter>

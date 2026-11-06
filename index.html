@@ -3,13 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0C2142">
 <title>Daily News Briefing</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-mode="both">
@@ -55,6 +52,8 @@
         <button type="button" id="l-kn" aria-pressed="false" lang="kn">ಕನ್ನಡ</button>
         <button type="button" id="l-both" aria-pressed="true">Both</button>
       </div>
+      <a class="chip" id="getapp" href="https://github.com/jnanendray/daily_news/releases/download/apk-latest/DailyNewsBriefing.apk" rel="noopener noreferrer">Get Android app</a>
+      <button type="button" class="chip" id="shareapp">Share app link</button>
       <label class="speed" for="rate">Voice speed
         <select id="rate">
           <option value="0.8">Slow</option>
@@ -85,6 +84,7 @@
     </div>
   </div>
   <div class="note" id="voicenote" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
   <main id="main">
     <section aria-labelledby="h-in">
@@ -104,7 +104,14 @@
   </main>
 
   <footer>
-    <p>Pick any past day from the calendar, or swipe left and right on a phone. Summaries are written by Claude from public news pages. Kannada text is machine-written, so check the original report for exact wording.</p>
+    <p>Pick any past day from the calendar, or swipe left and right on a phone. Every story has a Share button and a link to find the original report.</p>
+    <details class="legal">
+      <summary>About, copyright and privacy</summary>
+      <p><strong>Copyright.</strong> &copy; 2026 jnanendray. All rights reserved for this app's own code, design and icons. News belongs to the publishers named on each story. Their names and trademarks belong to them and are used only to credit the source.</p>
+      <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
+      <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. Links open in the in-app reader and those sites have their own policies.</p>
+      <p><strong>Removal requests.</strong> To report an error or ask for any item to be removed, open an issue at <a href="https://github.com/jnanendray/daily_news/issues" rel="noopener noreferrer">github.com/jnanendray/daily_news</a>. Version 2.0, see CHANGELOG.md.</p>
+    </details>
   </footer>
 </div>
 <script src="app.js"></script>

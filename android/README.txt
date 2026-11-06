@@ -3,7 +3,7 @@ DAILY NEWS BRIEFING - ANDROID APP (build once, free)
 WHAT IT IS
 A small app that opens your LIVE news page full-screen, so it shows each day's news and audio automatically.
 Its only permission is INTERNET, used only for your own page. If you are offline or the page is down, it shows the
-bundled copy of the news instead. Outside links open in your browser, never inside the app. No storage, camera,
+bundled copy of the news instead. Reference links open in the app's own reader (https only, no downloads). The app speaks through the phone's own text-to-speech. No storage, camera,
 microphone, location or contacts access.
 
 The live address is already set to https://jnanendray.github.io/daily_news/ in app/src/main/res/values/strings.xml (no edit needed unless you rename the repository). Turn on GitHub Pages first (see below). Original note: replace the live_url address with your own GitHub Pages

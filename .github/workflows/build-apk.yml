@@ -20,6 +20,12 @@ jobs:
         working-directory: .
       - uses: gradle/actions/setup-gradle@v4
         with: { gradle-version: '8.7' }
+      - name: Bundle the current site as the offline copy
+        run: |
+          mkdir -p app/src/main/assets
+          cp ../index.html ../style.css ../app.js app/src/main/assets/
+          cp -r ../data app/src/main/assets/data
+          du -sh app/src/main/assets
       - name: Create a signing key for this build
         run: |
           PW=$(openssl rand -hex 16)
@@ -39,6 +45,6 @@ jobs:
         with:
           tag_name: apk-latest
           name: Daily News Briefing app
-          body: Latest Android app. Download DailyNewsBriefing.apk and install it.
+          body: Latest Android app (version 2.0). Download DailyNewsBriefing.apk and install it. Updating needs an uninstall first, because each build uses a new signing key.
           files: ${{ runner.temp }}/DailyNewsBriefing.apk
           make_latest: true
