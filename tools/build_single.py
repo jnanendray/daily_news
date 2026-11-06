@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Build one self-contained HTML file (for the Claude artifact) from index.html, style.css, app.js and data/*.json."""
+import json, re, glob, os, sys
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+rd = lambda p: open(os.path.join(root, p), encoding="utf-8").read()
+html, css, js = rd("index.html"), rd("style.css"), rd("app.js")
+idx = json.loads(rd("data/index.json"))
+days = {os.path.basename(f)[:-5]: json.load(open(f, encoding="utf-8")) for f in sorted(glob.glob(os.path.join(root, "data", "20*.json")))}
+emb = json.dumps({"index": idx, "days": days}, ensure_ascii=False).replace("</", "<\\/")
+html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", html)
+html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + css + "\n</style>")
+html = html.replace('<script src="app.js"></script>', "<script>window.__EMBED=" + emb + ";</script>\n<script>\n" + js + "\n</script>")
+out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "single.html")
+open(out, "w", encoding="utf-8").write(html)
+print(out, len(html))

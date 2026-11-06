@@ -1,98 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0C2142">
 <title>Daily News Briefing</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Hanken+Grotesk:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;500;700&display=swap">
-<style>
-/* Layout: a bulletin. Deep-navy masthead, then two ranked lists; each story has an illustrated tile, text, and a Listen pill. */
-:root{
-  --bg:#F2F4F7; --surface:#FFFFFF; --fg:#101B27; --muted:#566475; --line:#DCE1E7;
-  --accent:#1B5BD1; --accent-fg:#FFFFFF; --accent-soft:#E3ECFB;
-  --hero-bg:#0F2747; --hero-fg:#F3F6FB; --hero-muted:#AFC0D8; --gold:#F2B705; --kred:#C8102E;
-  --t1-bg:#E3ECFB; --t1-fg:#1B5BD1; --t2-bg:#FFF1CC; --t2-fg:#8A5A00; --t3-bg:#FBE3E3; --t3-fg:#B3261E;
-  --t4-bg:#D9F2EE; --t4-fg:#0B6B5F; --t5-bg:#EBE4FA; --t5-fg:#5B3DB0;
-  --font-display:'Bricolage Grotesque','Noto Sans Kannada',system-ui,sans-serif;
-  --font-body:'Hanken Grotesk','Noto Sans Kannada',system-ui,sans-serif;
-  --font-kn:'Noto Sans Kannada','Hanken Grotesk',system-ui,sans-serif;
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0C131B; --surface:#151F2A; --fg:#E8EEF4; --muted:#93A3B3; --line:#263443;
-  --accent:#7AA9F7; --accent-fg:#0B1522; --accent-soft:#1B2E4A; --hero-bg:#12233D; --kred:#FF6B7F;
-  --t1-bg:#1B2E4A; --t1-fg:#8DB6FA; --t2-bg:#3A2E10; --t2-fg:#F2C14E; --t3-bg:#3B1B1D; --t3-fg:#FF9A92;
-  --t4-bg:#12332F; --t4-fg:#5FD3C1; --t5-bg:#2A2347; --t5-fg:#B7A5F5; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0C131B; --surface:#151F2A; --fg:#E8EEF4; --muted:#93A3B3; --line:#263443;
-  --accent:#7AA9F7; --accent-fg:#0B1522; --accent-soft:#1B2E4A; --hero-bg:#12233D; --kred:#FF6B7F;
-  --t1-bg:#1B2E4A; --t1-fg:#8DB6FA; --t2-bg:#3A2E10; --t2-fg:#F2C14E; --t3-bg:#3B1B1D; --t3-fg:#FF9A92;
-  --t4-bg:#12332F; --t4-fg:#5FD3C1; --t5-bg:#2A2347; --t5-fg:#B7A5F5; color-scheme:dark}
-*{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.55;
-  padding-block:0 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.wrap{max-width:860px;margin:0 auto}
-.hero{margin-top:16px;padding:26px 24px 24px;border-radius:16px;background:var(--hero-bg);color:var(--hero-fg);position:relative;overflow:hidden}
-.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;
-  border:28px solid rgba(255,255,255,.06)}
-.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--hero-muted);font-weight:600}
-h1{font-family:var(--font-display);font-size:clamp(32px,7vw,50px);line-height:1.02;margin:8px 0 10px;font-weight:700;text-wrap:balance}
-.sub{color:var(--hero-muted);max-width:56ch;margin:0}
-.stripe{display:flex;gap:0;margin-top:18px;height:5px;width:96px;border-radius:3px;overflow:hidden}
-.stripe i{flex:1}.stripe i:nth-child(1){background:var(--gold)}.stripe i:nth-child(2){background:var(--kred)}
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);margin-top:14px;
-  padding-block:10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:transparent;color:var(--fg);font:inherit;font-size:14px;padding:7px 14px;cursor:pointer;min-height:38px}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);font-weight:600}
-.seg button+button{border-left:1px solid var(--line)}
-label.speed{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
-select{font:inherit;font-size:14px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:10px;padding:6px 8px;min-height:38px}
-button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.stop{margin-left:auto;border:1px solid var(--line);background:var(--surface);color:var(--fg);font:inherit;font-size:14px;border-radius:10px;padding:7px 14px;cursor:pointer;min-height:38px}
-.note{margin:14px 0 0;padding:10px 12px;border-radius:10px;background:var(--accent-soft);font-size:14px}
-section{padding-top:36px}
-.sec-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:10px;margin-bottom:8px}
-h2{font-family:var(--font-display);font-size:28px;margin:0;font-weight:700;line-height:1.1}
-h2::after{content:"";display:block;width:44px;height:4px;border-radius:2px;margin-top:8px;background:var(--accent)}
-#h-ka::after{background:linear-gradient(90deg,var(--gold) 50%,var(--kred) 50%)}
-h2 small{display:block;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--muted);margin-top:4px}
-.play{background:var(--accent);color:var(--accent-fg);border:0;border-radius:10px;font:inherit;font-weight:600;font-size:14px;padding:9px 18px;cursor:pointer;min-height:42px}
-ol{list-style:none;margin:0;padding:0}
-li.item{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:6px 16px;padding:18px 0;border-bottom:1px solid var(--line)}
-li.item.now{background:var(--accent-soft);margin-inline:-12px;padding-inline:12px;border-radius:12px;border-bottom-color:transparent}
-.tile{position:relative;width:72px;height:72px;border-radius:16px;display:grid;place-items:center}
-.tile svg{width:38px;height:38px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.tile.t1{background:var(--t1-bg);color:var(--t1-fg)}.tile.t2{background:var(--t2-bg);color:var(--t2-fg)}
-.tile.t3{background:var(--t3-bg);color:var(--t3-fg)}.tile.t4{background:var(--t4-bg);color:var(--t4-fg)}
-.tile.t5{background:var(--t5-bg);color:var(--t5-fg)}
-.rank{position:absolute;left:-6px;top:-6px;min-width:24px;height:24px;border-radius:12px;background:var(--fg);color:var(--bg);
-  font-size:12px;font-weight:700;display:grid;place-items:center;font-variant-numeric:tabular-nums;padding-inline:6px}
-.hl{font-family:var(--font-display);font-size:19px;line-height:1.25;font-weight:700;margin:0 0 4px;text-wrap:balance}
-.txt{margin:0;color:var(--fg);max-width:65ch}
-.kn{font-family:var(--font-kn);line-height:1.7}
-.kn.hl{font-weight:700;font-size:18px}
-.meta{font-size:12px;color:var(--muted);margin-top:8px;display:flex;flex-wrap:wrap;gap:4px 10px}
-.listen{align-self:start;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;font:inherit;font-size:13px;font-weight:600;padding:8px 16px;cursor:pointer;min-height:38px;white-space:nowrap}
-.listen[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-.block+.block{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
-footer{margin-top:44px;color:var(--muted);font-size:13px}
-footer a{color:var(--accent)}
-.next{margin-top:26px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface);font-size:14px}
-.next b{font-family:var(--font-display)}
-@media (max-width:560px){
-  li.item{grid-template-columns:56px minmax(0,1fr);gap:6px 14px}
-  .tile{width:56px;height:56px;border-radius:14px}.tile svg{width:30px;height:30px}
-  .listen{grid-column:2;justify-self:start;margin-top:8px}
-  .stop{margin-left:0}
-  .hero{padding:22px 18px}
-}
-@media (prefers-reduced-motion:no-preference){li.item{transition:background .2s}}
-</style>
-
-<div class="wrap">
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-mode="both">
+<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<symbol id="ic-cal" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="32" rx="6"/><path d="M6 19h36M15 5v8M33 5v8"/></symbol>
 <symbol id="ic-cyclone" viewBox="0 0 48 48"><circle cx="24" cy="24" r="2.5"/><path d="M24 12c7-1 12 4 11 11"/><path d="M36 24c1 7-4 12-11 11"/><path d="M24 36c-7 1-12-4-11-11"/><path d="M12 24c-1-7 4-12 11-11"/></symbol>
 <symbol id="ic-chart" viewBox="0 0 48 48"><path d="M8 40h32M8 40V8"/><path d="M13 31l8-9 6 5 12-14"/><path d="M31 13h8v8"/></symbol>
 <symbol id="ic-building" viewBox="0 0 48 48"><path d="M10 41V14l14-7 14 7v27"/><path d="M6 41h36"/><path d="M18 20h4M26 20h4M18 28h4M26 28h4"/><path d="M21 41v-6h6v6"/></symbol>
 <symbol id="ic-mic" viewBox="0 0 48 48"><rect x="18" y="7" width="12" height="21" rx="6"/><path d="M11 23a13 13 0 0 0 26 0"/><path d="M24 36v6M17 42h14"/></symbol>
-<symbol id="ic-ballot" viewBox="0 0 48 48"><path d="M7 27h34v14H7z"/><path d="M13 27v-0"/><path d="M15 27V11h18v16"/><path d="M20 19l3 3 6-7"/></symbol>
+<symbol id="ic-ballot" viewBox="0 0 48 48"><path d="M7 27h34v14H7z"/><path d="M15 27V11h18v16"/><path d="M20 19l3 3 6-7"/></symbol>
 <symbol id="ic-cricket" viewBox="0 0 48 48"><g transform="rotate(35 24 24)"><rect x="18" y="5" width="12" height="26" rx="3"/><path d="M24 31v11"/></g><circle cx="38" cy="39" r="4"/></symbol>
 <symbol id="ic-gavel" viewBox="0 0 48 48"><g transform="rotate(-35 24 22)"><rect x="9" y="8" width="22" height="11" rx="2.5"/><path d="M20 19v19"/></g><path d="M22 42h20"/></symbol>
 <symbol id="ic-scales" viewBox="0 0 48 48"><path d="M24 8v32M13 40h22M9 14h30"/><path d="M9 14l-5 13a6 6 0 0 0 10 0z"/><path d="M39 14l-5 13a6 6 0 0 0 10 0z"/></symbol>
@@ -107,334 +34,79 @@ footer a{color:var(--accent)}
 <symbol id="ic-cross" viewBox="0 0 48 48"><rect x="7" y="7" width="34" height="34" rx="9"/><path d="M24 15v18M15 24h18"/></symbol>
 <symbol id="ic-doc" viewBox="0 0 48 48"><path d="M11 5h19l9 9v29H11z"/><path d="M30 5v9h9"/><path d="M17 24h16M17 30h16M17 36h9"/></symbol>
 <symbol id="ic-trees" viewBox="0 0 48 48"><path d="M15 41V31M33 41V31"/><circle cx="15" cy="22" r="9"/><circle cx="33" cy="22" r="9"/><path d="M5 41h38"/></symbol>
+<symbol id="ic-plane" viewBox="0 0 48 48"><path d="M6 8l38 16L6 40l7-16z"/><path d="M13 24h16"/></symbol>
+<symbol id="ic-bus" viewBox="0 0 48 48"><rect x="8" y="8" width="32" height="28" rx="5"/><path d="M8 24h32M16 36v5M32 36v5"/><circle cx="16" cy="30" r="1.5"/><circle cx="32" cy="30" r="1.5"/></symbol>
+<symbol id="ic-bolt" viewBox="0 0 48 48"><path d="M27 5L11 27h12l-3 16 17-24H25z"/></symbol>
+<symbol id="ic-shield" viewBox="0 0 48 48"><path d="M24 5l15 6v11c0 10-7 17-15 21-8-4-15-11-15-21V11z"/><path d="M17 24l5 5 9-10"/></symbol>
+<symbol id="ic-drop" viewBox="0 0 48 48"><path d="M24 6c8 10 13 16 13 23a13 13 0 0 1-26 0c0-7 5-13 13-23z"/></symbol>
+<symbol id="ic-heart" viewBox="0 0 48 48"><path d="M24 41S7 31 7 19a9 9 0 0 1 17-4 9 9 0 0 1 17 4c0 12-17 22-17 22z"/></symbol>
+<symbol id="ic-flag" viewBox="0 0 48 48"><path d="M10 42V6"/><path d="M10 8h26l-5 8 5 8H10"/></symbol>
 </defs></svg>
-<header class="hero">
-  <div class="eyebrow" id="dateline">Friday, 6 November 2026</div>
-  <h1>Daily News Briefing</h1>
-  <p class="sub">Top 10 from India and top 10 from Karnataka. Read it, or tap Listen. ಇಂದಿನ ಸುದ್ದಿ ಕನ್ನಡದಲ್ಲೂ ಲಭ್ಯ.</p>
-  <div class="stripe" aria-hidden="true"><i></i><i></i></div>
-</header>
 
-<div class="bar" role="toolbar" aria-label="Language and playback">
-  <div class="seg" role="group" aria-label="Language">
-    <button type="button" id="l-en" aria-pressed="false">English</button>
-    <button type="button" id="l-kn" aria-pressed="false">ಕನ್ನಡ</button>
-    <button type="button" id="l-both" aria-pressed="true">Both</button>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Daily News Briefing</div>
+    <h1 id="dateline">Loading</h1>
+    <p class="kn-date" id="dateline-kn" lang="kn"></p>
+    <p class="sub">Top 10 from India and top 10 from Karnataka, with a spoken version in English and Kannada.</p>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Language">
+        <button type="button" id="l-en" aria-pressed="false">English</button>
+        <button type="button" id="l-kn" aria-pressed="false" lang="kn">ಕನ್ನಡ</button>
+        <button type="button" id="l-both" aria-pressed="true">Both</button>
+      </div>
+      <label class="speed" for="rate">Voice speed
+        <select id="rate">
+          <option value="0.8">Slow</option>
+          <option value="0.92" selected>Normal</option>
+          <option value="1.1">Fast</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <div class="daybar" id="daybar">
+    <button type="button" class="nav" id="prev" aria-label="Previous day">&#8249;</button>
+    <button type="button" class="datebtn" id="datebtn" aria-haspopup="dialog" aria-expanded="false" aria-controls="cal">
+      <svg class="ico" aria-hidden="true"><use href="#ic-cal"/></svg><span id="datelabel">Pick a date</span>
+    </button>
+    <button type="button" class="nav" id="next" aria-label="Next day">&#8250;</button>
+    <button type="button" class="chip" id="latest">Latest</button>
+    <button type="button" class="chip" id="stop">Stop</button>
+    <div class="cal" id="cal" role="dialog" aria-label="Choose a date" hidden>
+      <div class="cal-head">
+        <button type="button" class="nav" id="cal-prev" aria-label="Previous month">&#8249;</button>
+        <strong id="cal-title">Month</strong>
+        <button type="button" class="nav" id="cal-next" aria-label="Next month">&#8250;</button>
+      </div>
+      <div class="cal-week" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <p class="cal-key">Bold days have a saved briefing.</p>
+    </div>
   </div>
-  <label class="speed" for="rate">Speed
-    <select id="rate"><option value="0.8">Slow</option><option value="0.92" selected>Normal</option><option value="1.1">Fast</option></select>
-  </label>
-  <button type="button" class="stop" id="stop">Stop</button>
+  <div class="note" id="voicenote" hidden></div>
+
+  <main id="main">
+    <section aria-labelledby="h-in">
+      <div class="sec-head">
+        <h2 id="h-in">India<small>Top 10 national stories</small></h2>
+        <button type="button" class="play" data-play="in">Play all India</button>
+      </div>
+      <ol id="list-in" class="list"></ol>
+    </section>
+    <section aria-labelledby="h-ka">
+      <div class="sec-head">
+        <h2 id="h-ka" class="ka">Karnataka<small>Top 10 state stories</small></h2>
+        <button type="button" class="play" data-play="ka">Play all Karnataka</button>
+      </div>
+      <ol id="list-ka" class="list"></ol>
+    </section>
+  </main>
+
+  <footer>
+    <p>Pick any past day from the calendar, or swipe left and right on a phone. Summaries are written by Claude from public news pages. Kannada text is machine-written, so check the original report for exact wording.</p>
+  </footer>
 </div>
-<div class="note" id="voicenote" hidden></div>
-
-<section aria-labelledby="h-in">
-  <div class="sec-head">
-    <h2 id="h-in">India<small>National top 10 · 6 Nov 2026</small></h2>
-    <button type="button" class="play" data-play="in">Play all India</button>
-  </div>
-  <ol id="list-in"></ol>
-</section>
-
-<section aria-labelledby="h-ka">
-  <div class="sec-head">
-    <h2 id="h-ka">Karnataka<small>State top 10 · latest available, dates shown</small></h2>
-    <button type="button" class="play" data-play="ka">Play all Karnataka</button>
-  </div>
-  <ol id="list-ka"></ol>
-</section>
-
-<div class="next"><b>Planned upgrades.</b> Ask by voice ("what happened in Bengaluru today?"), pick topics like cricket or business, a short 2-minute audio mode, and a morning refresh that updates this page automatically.</div>
-
-<footer>
-  Sources: Google News India, The Hindu, Moneycontrol, The Indian Express, The Times of India, ThePrint, Hindustan Times, Deccan Herald, NDTV Food,
-  <a href="https://www.thenewsminute.com/karnataka" target="_blank" rel="noopener">The News Minute</a>.
-  Kannada versions are machine-written summaries; check the original report for exact wording.
-</footer>
-</div>
-
-<script>
-var DATA = {
- "in": [
-  {
-   "h": "Supreme Court says vehicles are a major cause of Delhi-NCR pollution",
-   "t": "The Supreme Court observed that vehicular emissions are a major contributor to air pollution in Delhi-NCR. The remarks came during its hearing on the region's worsening air quality.",
-   "kh": "ದೆಹಲಿ-ಎನ್‌ಸಿಆರ್ ಮಾಲಿನ್ಯಕ್ಕೆ ವಾಹನಗಳೇ ಪ್ರಮುಖ ಕಾರಣ: ಸುಪ್ರೀಂ ಕೋರ್ಟ್",
-   "k": "ದೆಹಲಿ-ಎನ್‌ಸಿಆರ್ ಪ್ರದೇಶದ ವಾಯುಮಾಲಿನ್ಯಕ್ಕೆ ವಾಹನಗಳ ಹೊಗೆ ಪ್ರಮುಖ ಕಾರಣ ಎಂದು ಸುಪ್ರೀಂ ಕೋರ್ಟ್ ಅಭಿಪ್ರಾಯಪಟ್ಟಿದೆ. ಹದಗೆಡುತ್ತಿರುವ ಗಾಳಿಯ ಗುಣಮಟ್ಟದ ಕುರಿತ ವಿಚಾರಣೆಯ ವೇಳೆ ನ್ಯಾಯಾಲಯ ಈ ಮಾತು ಹೇಳಿದೆ.",
-   "s": "The Hindu",
-   "w": "Latest"
-  },
-  {
-   "h": "Government weighs tax relief for stock markets",
-   "t": "The Centre is reportedly considering a tax relief package for the stock market. An announcement before the Budget looks unlikely.",
-   "kh": "ಷೇರು ಮಾರುಕಟ್ಟೆಗೆ ತೆರಿಗೆ ರಿಯಾಯಿತಿ ಪರಿಶೀಲನೆ",
-   "k": "ಷೇರು ಮಾರುಕಟ್ಟೆಗೆ ತೆರಿಗೆ ರಿಯಾಯಿತಿ ನೀಡುವ ಪ್ಯಾಕೇಜ್ ಬಗ್ಗೆ ಕೇಂದ್ರ ಸರ್ಕಾರ ಪರಿಶೀಲನೆ ನಡೆಸುತ್ತಿದೆ ಎಂದು ವರದಿಯಾಗಿದೆ. ಆದರೆ ಬಜೆಟ್‌ಗೆ ಮುನ್ನ ಇದರ ಘೋಷಣೆ ಆಗುವ ಸಾಧ್ಯತೆ ಕಡಿಮೆ.",
-   "s": "Moneycontrol",
-   "w": "Latest"
-  },
-  {
-   "h": "Mehli Mistry questions Noel Tata's citizenship and tax residency",
-   "t": "Mehli Mistry, who was removed from the Tata Trusts, has raised questions about Noel Tata's citizenship and tax residency status. The dispute inside the Tata Trusts continues.",
-   "kh": "ನೋಯೆಲ್ ಟಾಟಾ ಪೌರತ್ವ, ತೆರಿಗೆ ವಾಸಸ್ಥಾನದ ಬಗ್ಗೆ ಮೆಹ್ಲಿ ಮಿಸ್ತ್ರಿ ಪ್ರಶ್ನೆ",
-   "k": "ಟಾಟಾ ಟ್ರಸ್ಟ್‌ಗಳಿಂದ ಹೊರಹಾಕಲ್ಪಟ್ಟ ಮೆಹ್ಲಿ ಮಿಸ್ತ್ರಿ ಅವರು ನೋಯೆಲ್ ಟಾಟಾ ಅವರ ಪೌರತ್ವ ಮತ್ತು ತೆರಿಗೆ ವಾಸಸ್ಥಾನದ ಸ್ಥಿತಿಯ ಬಗ್ಗೆ ಪ್ರಶ್ನೆ ಎತ್ತಿದ್ದಾರೆ. ಟಾಟಾ ಟ್ರಸ್ಟ್‌ಗಳ ಒಳಗಿನ ವಿವಾದ ಮುಂದುವರಿದಿದೆ.",
-   "s": "The Hindu",
-   "w": "Latest"
-  },
-  {
-   "h": "Videocon promoter Venugopal Dhoot declared bankrupt",
-   "t": "The NCLT declared Videocon promoter Venugopal Dhoot bankrupt over a Rs 12,668 crore default on a State Bank of India loan.",
-   "kh": "ವಿಡಿಯೋಕಾನ್ ಪ್ರವರ್ತಕ ವೇಣುಗೋಪಾಲ್ ಧೂತ್ ದಿವಾಳಿ ಎಂದು ಘೋಷಣೆ",
-   "k": "ಭಾರತೀಯ ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್‌ನ 12,668 ಕೋಟಿ ರೂಪಾಯಿ ಸಾಲ ಮರುಪಾವತಿ ಮಾಡದ ಕಾರಣಕ್ಕೆ ವಿಡಿಯೋಕಾನ್ ಪ್ರವರ್ತಕ ವೇಣುಗೋಪಾಲ್ ಧೂತ್ ಅವರನ್ನು ಎನ್‌ಸಿಎಲ್‌ಟಿ ದಿವಾಳಿ ಎಂದು ಘೋಷಿಸಿದೆ.",
-   "s": "The Indian Express",
-   "w": "Latest"
-  },
-  {
-   "h": "Sugarcane farmers' protest strands thousands on NH-48 in Maharashtra",
-   "t": "Protests by sugarcane farmers in Maharashtra have left thousands of travellers stranded on National Highway 48. The farmers are demanding a higher cane price.",
-   "kh": "ಮಹಾರಾಷ್ಟ್ರದಲ್ಲಿ ಕಬ್ಬು ಬೆಳೆಗಾರರ ಪ್ರತಿಭಟನೆ: ಎನ್‌ಎಚ್-48ರಲ್ಲಿ ಸಾವಿರಾರು ಮಂದಿ ಸಿಲುಕಿದರು",
-   "k": "ಮಹಾರಾಷ್ಟ್ರದಲ್ಲಿ ಕಬ್ಬು ಬೆಳೆಗಾರರ ಪ್ರತಿಭಟನೆಯಿಂದ ರಾಷ್ಟ್ರೀಯ ಹೆದ್ದಾರಿ 48ರಲ್ಲಿ ಸಾವಿರಾರು ಪ್ರಯಾಣಿಕರು ಸಿಲುಕಿಕೊಂಡಿದ್ದಾರೆ. ರೈತರು ಕಬ್ಬಿಗೆ ಹೆಚ್ಚಿನ ಬೆಲೆ ನೀಡುವಂತೆ ಆಗ್ರಹಿಸುತ್ತಿದ್ದಾರೆ.",
-   "s": "Hindustan Times",
-   "w": "Latest"
-  },
-  {
-   "h": "Odisha IAS officer says a BJP MLA threatened him on flood duty",
-   "t": "An IAS officer in Odisha says a BJP MLA threatened him while he was on flood relief duty. He has filed a complaint.",
-   "kh": "ಪ್ರವಾಹ ಕರ್ತವ್ಯದ ವೇಳೆ ಬಿಜೆಪಿ ಶಾಸಕರಿಂದ ಬೆದರಿಕೆ ಎಂದ ಒಡಿಶಾ ಐಎಎಸ್ ಅಧಿಕಾರಿ",
-   "k": "ಪ್ರವಾಹ ಪರಿಹಾರ ಕರ್ತವ್ಯದಲ್ಲಿದ್ದಾಗ ಬಿಜೆಪಿ ಶಾಸಕರೊಬ್ಬರು ತಮಗೆ ಬೆದರಿಕೆ ಹಾಕಿದ್ದಾರೆ ಎಂದು ಒಡಿಶಾದ ಐಎಎಸ್ ಅಧಿಕಾರಿಯೊಬ್ಬರು ಆರೋಪಿಸಿ ದೂರು ದಾಖಲಿಸಿದ್ದಾರೆ.",
-   "s": "The Times of India",
-   "w": "Latest"
-  },
-  {
-   "h": "Tamil Nadu library book purchase row",
-   "t": "Chief Minister Vijay has accused the DMK of graft in book purchases for the Periyar Knowledge World library. Author Perumal Murugan has also pointed to irregularities.",
-   "kh": "ತಮಿಳುನಾಡು ಗ್ರಂಥಾಲಯ ಪುಸ್ತಕ ಖರೀದಿ ವಿವಾದ",
-   "k": "ಪೆರಿಯಾರ್ ನಾಲೆಜ್ ವರ್ಲ್ಡ್ ಗ್ರಂಥಾಲಯಕ್ಕೆ ಪುಸ್ತಕ ಖರೀದಿಯಲ್ಲಿ ಡಿಎಂಕೆ ಭ್ರಷ್ಟಾಚಾರ ನಡೆಸಿದೆ ಎಂದು ಮುಖ್ಯಮಂತ್ರಿ ವಿಜಯ್ ಆರೋಪಿಸಿದ್ದಾರೆ. ಲೇಖಕ ಪೆರುಮಾಳ್ ಮುರುಗನ್ ಕೂಡ ಅಕ್ರಮಗಳತ್ತ ಬೊಟ್ಟು ಮಾಡಿದ್ದಾರೆ.",
-   "s": "ThePrint",
-   "w": "Latest"
-  },
-  {
-   "h": "Sensex jumps 1,718 points; Nifty back above 25,000",
-   "t": "Indian markets rose sharply despite a global sell-off. The Sensex gained 1,718 points and the Nifty reclaimed the 25,000 level.",
-   "kh": "ಸೆನ್ಸೆಕ್ಸ್ 1,718 ಅಂಕ ಜಿಗಿತ; ನಿಫ್ಟಿ ಮತ್ತೆ 25,000ರ ಮೇಲೆ",
-   "k": "ಜಾಗತಿಕ ಮಾರುಕಟ್ಟೆಗಳಲ್ಲಿ ಮಾರಾಟದ ಒತ್ತಡವಿದ್ದರೂ ಭಾರತೀಯ ಷೇರುಪೇಟೆ ತೀವ್ರ ಏರಿಕೆ ಕಂಡಿದೆ. ಸೆನ್ಸೆಕ್ಸ್ 1,718 ಅಂಕ ಗಳಿಸಿದ್ದು, ನಿಫ್ಟಿ ಮತ್ತೆ 25,000 ಮಟ್ಟ ತಲುಪಿದೆ.",
-   "s": "The Hindu",
-   "w": "Latest"
-  },
-  {
-   "h": "Bengaluru airport moves to mixed-mode runway use from 11 November",
-   "t": "Bengaluru's airport will begin a phased shift to mixed-mode runway operations from 11 November. The change is expected to raise flight capacity.",
-   "kh": "ನವೆಂಬರ್ 11ರಿಂದ ಬೆಂಗಳೂರು ವಿಮಾನ ನಿಲ್ದಾಣದಲ್ಲಿ ಮಿಶ್ರ ರನ್‌ವೇ ಬಳಕೆ",
-   "k": "ಬೆಂಗಳೂರು ವಿಮಾನ ನಿಲ್ದಾಣ ನವೆಂಬರ್ 11ರಿಂದ ಹಂತ ಹಂತವಾಗಿ ಮಿಶ್ರ ರನ್‌ವೇ ಕಾರ್ಯಾಚರಣೆಗೆ ಬದಲಾಗಲಿದೆ. ಇದರಿಂದ ವಿಮಾನಗಳ ಸಾಮರ್ಥ್ಯ ಹೆಚ್ಚುವ ನಿರೀಕ್ಷೆ ಇದೆ.",
-   "s": "Deccan Herald",
-   "w": "Latest"
-  },
-  {
-   "h": "Two Indian restaurants make the World's 50 Best list for the first time",
-   "t": "Two restaurants, one in Mumbai and one in Himachal Pradesh, have entered the World's 50 Best Restaurants list for the first time.",
-   "kh": "ವಿಶ್ವದ 50 ಅತ್ಯುತ್ತಮ ರೆಸ್ಟೋರೆಂಟ್ ಪಟ್ಟಿಯಲ್ಲಿ ಮೊದಲ ಬಾರಿಗೆ ಎರಡು ಭಾರತೀಯ ರೆಸ್ಟೋರೆಂಟ್",
-   "k": "ಮುಂಬೈ ಮತ್ತು ಹಿಮಾಚಲ ಪ್ರದೇಶದ ಎರಡು ರೆಸ್ಟೋರೆಂಟ್‌ಗಳು ವಿಶ್ವದ 50 ಅತ್ಯುತ್ತಮ ರೆಸ್ಟೋರೆಂಟ್‌ಗಳ ಪಟ್ಟಿಯಲ್ಲಿ ಮೊದಲ ಬಾರಿಗೆ ಸ್ಥಾನ ಪಡೆದಿವೆ.",
-   "s": "NDTV Food",
-   "w": "Latest"
-  }
- ],
- "ka": [
-  {
-   "h": "High Court quashes BJP's defamation case over Congress '40% commission' ads",
-   "t": "The Karnataka High Court has quashed a defamation case the BJP filed against the Congress over advertisements alleging a 40 percent commission.",
-   "kh": "ಕಾಂಗ್ರೆಸ್ '40% ಕಮಿಷನ್' ಜಾಹೀರಾತು: ಬಿಜೆಪಿ ಮಾನನಷ್ಟ ಪ್ರಕರಣ ರದ್ದು",
-   "k": "40 ಪರ್ಸೆಂಟ್ ಕಮಿಷನ್ ಆರೋಪದ ಜಾಹೀರಾತುಗಳಿಗೆ ಸಂಬಂಧಿಸಿದಂತೆ ಕಾಂಗ್ರೆಸ್ ವಿರುದ್ಧ ಬಿಜೆಪಿ ದಾಖಲಿಸಿದ್ದ ಮಾನನಷ್ಟ ಪ್ರಕರಣವನ್ನು ಕರ್ನಾಟಕ ಹೈಕೋರ್ಟ್ ರದ್ದುಗೊಳಿಸಿದೆ.",
-   "s": "The News Minute",
-   "w": "Latest"
-  },
-  {
-   "h": "Karnataka seizes 22 lakh kg of rice and 204 vehicles in hoarding crackdown",
-   "t": "Authorities have seized more than 22 lakh kg of rice and 204 vehicles in a drive against illegal stockpiling.",
-   "kh": "ಅಕ್ರಮ ದಾಸ್ತಾನು ವಿರುದ್ಧ ಕಾರ್ಯಾಚರಣೆ: 22 ಲಕ್ಷ ಕೆ.ಜಿ ಅಕ್ಕಿ, 204 ವಾಹನ ವಶ",
-   "k": "ಅಕ್ರಮ ದಾಸ್ತಾನು ವಿರುದ್ಧದ ಕಾರ್ಯಾಚರಣೆಯಲ್ಲಿ ರಾಜ್ಯದ ಅಧಿಕಾರಿಗಳು 22 ಲಕ್ಷ ಕೆ.ಜಿಗೂ ಹೆಚ್ಚು ಅಕ್ಕಿ ಮತ್ತು 204 ವಾಹನಗಳನ್ನು ವಶಪಡಿಸಿಕೊಂಡಿದ್ದಾರೆ.",
-   "s": "The News Minute",
-   "w": "4 Nov"
-  },
-  {
-   "h": "Pro-Kannada group meets Google and other tech firms on local hiring",
-   "t": "A pro-Kannada group has met Google and other technology companies and urged them to hire more people from Karnataka.",
-   "kh": "ಸ್ಥಳೀಯರ ನೇಮಕಾತಿಗೆ ಗೂಗಲ್ ಸೇರಿದಂತೆ ಟೆಕ್ ಕಂಪನಿಗಳಿಗೆ ಕನ್ನಡ ಸಂಘಟನೆಯ ಮನವಿ",
-   "k": "ಕನ್ನಡ ಪರ ಸಂಘಟನೆಯೊಂದು ಗೂಗಲ್ ಸೇರಿದಂತೆ ಹಲವು ತಂತ್ರಜ್ಞಾನ ಕಂಪನಿಗಳನ್ನು ಭೇಟಿಯಾಗಿ ಕರ್ನಾಟಕದವರಿಗೆ ಹೆಚ್ಚು ಉದ್ಯೋಗ ನೀಡುವಂತೆ ಮನವಿ ಮಾಡಿದೆ.",
-   "s": "The News Minute",
-   "w": "4 Nov"
-  },
-  {
-   "h": "Big protest against the Bedthi-Aghanashini river-linking project",
-   "t": "Demonstrators held a major protest in Karnataka against the plan to link the Bedthi and Aghanashini rivers.",
-   "kh": "ಬೇಡ್ತಿ-ಅಘನಾಶಿನಿ ನದಿ ಜೋಡಣೆ ವಿರುದ್ಧ ದೊಡ್ಡ ಪ್ರತಿಭಟನೆ",
-   "k": "ಬೇಡ್ತಿ ಮತ್ತು ಅಘನಾಶಿನಿ ನದಿಗಳನ್ನು ಜೋಡಿಸುವ ಯೋಜನೆಯ ವಿರುದ್ಧ ರಾಜ್ಯದಲ್ಲಿ ಬೃಹತ್ ಪ್ರತಿಭಟನೆ ನಡೆದಿದೆ.",
-   "s": "The News Minute",
-   "w": "4 Nov"
-  },
-  {
-   "h": "Mohandas Pai and Narayana Gowda trade barbs over visits to IT firms",
-   "t": "Mohandas Pai criticised the Karnataka Rakshana Vedike's visits to IT companies, and Narayana Gowda called him 'Shakuni'. The exchange has become a public row.",
-   "kh": "ಐಟಿ ಕಂಪನಿ ಭೇಟಿ: ಮೋಹನದಾಸ್ ಪೈ–ನಾರಾಯಣ ಗೌಡ ವಾಕ್ಸಮರ",
-   "k": "ಕರ್ನಾಟಕ ರಕ್ಷಣಾ ವೇದಿಕೆ ಐಟಿ ಕಂಪನಿಗಳಿಗೆ ಭೇಟಿ ನೀಡುತ್ತಿರುವುದನ್ನು ಮೋಹನದಾಸ್ ಪೈ ಟೀಕಿಸಿದ್ದು, ನಾರಾಯಣ ಗೌಡ ಅವರು ಪೈ ಅವರನ್ನು 'ಶಕುನಿ' ಎಂದು ಕರೆದಿದ್ದಾರೆ. ಇದು ಬಹಿರಂಗ ವಾಗ್ವಾದವಾಗಿದೆ.",
-   "s": "The News Minute",
-   "w": "4 Nov"
-  },
-  {
-   "h": "Profile: Bengaluru's drag performers and the community they are building",
-   "t": "A feature looks at Bengaluru's drag scene and how performers are building a community around it.",
-   "kh": "ಬೆಂಗಳೂರಿನ ಡ್ರ್ಯಾಗ್ ಕಲಾವಿದರು ಕಟ್ಟುತ್ತಿರುವ ಸಮುದಾಯ",
-   "k": "ಬೆಂಗಳೂರಿನ ಡ್ರ್ಯಾಗ್ ಕಲಾ ಪ್ರಪಂಚ ಮತ್ತು ಕಲಾವಿದರು ತಮ್ಮ ಸುತ್ತ ಸಮುದಾಯ ಕಟ್ಟಿಕೊಳ್ಳುತ್ತಿರುವ ಬಗ್ಗೆ ಒಂದು ವಿಶೇಷ ಲೇಖನ.",
-   "s": "The News Minute",
-   "w": "3 Nov"
-  },
-  {
-   "h": "Police stop the controversial play 'Gandhi Hatyeya Satya' in Bengaluru",
-   "t": "Police have ordered the suspension of the controversial play 'Gandhi Hatyeya Satya' in Bengaluru.",
-   "kh": "ವಿವಾದಿತ ನಾಟಕ 'ಗಾಂಧಿ ಹತ್ಯೆಯ ಸತ್ಯ' ಪ್ರದರ್ಶನ ಸ್ಥಗಿತಕ್ಕೆ ಪೊಲೀಸರ ಆದೇಶ",
-   "k": "ಬೆಂಗಳೂರಿನಲ್ಲಿ ವಿವಾದಕ್ಕೆ ಕಾರಣವಾದ 'ಗಾಂಧಿ ಹತ್ಯೆಯ ಸತ್ಯ' ನಾಟಕದ ಪ್ರದರ್ಶನವನ್ನು ಸ್ಥಗಿತಗೊಳಿಸುವಂತೆ ಪೊಲೀಸರು ಆದೇಶಿಸಿದ್ದಾರೆ.",
-   "s": "The News Minute",
-   "w": "3 Nov"
-  },
-  {
-   "h": "Belagavi sugarcane growers condemn arrests of protesters",
-   "t": "Sugarcane growers in Karnataka have condemned the arrest of protesters in Belagavi who were demanding Rs 3,600 per tonne.",
-   "kh": "ಬೆಳಗಾವಿಯಲ್ಲಿ ಪ್ರತಿಭಟನಾಕಾರರ ಬಂಧನಕ್ಕೆ ಕಬ್ಬು ಬೆಳೆಗಾರರ ಖಂಡನೆ",
-   "k": "ಟನ್ ಕಬ್ಬಿಗೆ 3,600 ರೂಪಾಯಿ ನೀಡುವಂತೆ ಆಗ್ರಹಿಸಿ ಬೆಳಗಾವಿಯಲ್ಲಿ ಪ್ರತಿಭಟಿಸಿದವರನ್ನು ಬಂಧಿಸಿರುವುದನ್ನು ರಾಜ್ಯದ ಕಬ್ಬು ಬೆಳೆಗಾರರು ಖಂಡಿಸಿದ್ದಾರೆ.",
-   "s": "Hindustan Times",
-   "w": "Latest"
-  },
-  {
-   "h": "Karnataka to send 500 trained workers to restore power in cyclone-hit Andhra",
-   "t": "Karnataka will send 500 trained power-sector workers to help restore electricity in storm-damaged Andhra Pradesh.",
-   "kh": "ಚಂಡಮಾರುತ ಪೀಡಿತ ಆಂಧ್ರಕ್ಕೆ 500 ತರಬೇತಿ ಪಡೆದ ಕಾರ್ಮಿಕರನ್ನು ಕಳುಹಿಸಲಿರುವ ಕರ್ನಾಟಕ",
-   "k": "ಚಂಡಮಾರುತದಿಂದ ಹಾನಿಗೊಳಗಾದ ಆಂಧ್ರಪ್ರದೇಶದಲ್ಲಿ ವಿದ್ಯುತ್ ಪೂರೈಕೆ ಪುನಃಸ್ಥಾಪಿಸಲು ಕರ್ನಾಟಕ 500 ತರಬೇತಿ ಪಡೆದ ವಿದ್ಯುತ್ ವಲಯದ ಕಾರ್ಮಿಕರನ್ನು ಕಳುಹಿಸಲಿದೆ.",
-   "s": "The News Minute",
-   "w": "3 Nov"
-  },
-  {
-   "h": "Pro-Kannada group visits Bengaluru IT companies to campaign for local jobs",
-   "t": "A pro-Kannada group has been visiting IT companies in Bengaluru to campaign for more jobs for Kannadigas.",
-   "kh": "ಕನ್ನಡಿಗರಿಗೆ ಉದ್ಯೋಗಕ್ಕಾಗಿ ಬೆಂಗಳೂರಿನ ಐಟಿ ಕಂಪನಿಗಳಿಗೆ ಕನ್ನಡ ಸಂಘಟನೆ ಭೇಟಿ",
-   "k": "ಕನ್ನಡಿಗರಿಗೆ ಹೆಚ್ಚಿನ ಉದ್ಯೋಗ ನೀಡುವಂತೆ ಒತ್ತಾಯಿಸಿ ಕನ್ನಡ ಪರ ಸಂಘಟನೆಯೊಂದು ಬೆಂಗಳೂರಿನ ಐಟಿ ಕಂಪನಿಗಳಿಗೆ ಭೇಟಿ ನೀಡುತ್ತಿದೆ.",
-   "s": "The News Minute",
-   "w": "3 Nov"
-  }
- ]
-};
-var AUDIO = {};
-var mode = 'both', rate = 0.92, queue = [], playing = -1, token = 0, voices = [];
-var synth = window.speechSynthesis;
-var $ = function(id){return document.getElementById(id)};
-
-var IC = {"in": [["gavel", "t2"], ["chart", "t1"], ["building", "t5"], ["scales", "t3"], ["alert", "t4"], ["alert", "t3"], ["book", "t5"], ["chart", "t4"], ["building", "t1"], ["camera", "t2"]], "ka": [["gavel", "t1"], ["alert", "t3"], ["laptop", "t1"], ["trees", "t4"], ["mic", "t3"], ["camera", "t5"], ["doc", "t5"], ["alert", "t2"], ["cyclone", "t4"], ["laptop", "t5"]]};
-function render(){
-  ['in','ka'].forEach(function(sec){
-    var ol = $('list-'+sec); ol.innerHTML = '';
-    DATA[sec].forEach(function(d,i){
-      var li = document.createElement('li'); li.className='item'; li.id='it-'+sec+'-'+i;
-      var ic = IC[sec][i];
-      var en = '<div class="block" data-lang="en"><h3 class="hl">'+d.h+'</h3><p class="txt">'+d.t+'</p></div>';
-      var kn = '<div class="block" data-lang="kn"><h3 class="hl kn">'+d.kh+'</h3><p class="txt kn">'+d.k+'</p></div>';
-      li.innerHTML = '<div class="tile '+ic[1]+'" aria-hidden="true"><svg><use href="#ic-'+ic[0]+'"/></svg><span class="rank">'+(i+1)+'</span></div>'+
-        '<div style="min-width:0">'+en+kn+'<div class="meta"><span>'+d.s+'</span><span>'+d.w+'</span></div></div>'+
-        '<button type="button" class="listen" aria-pressed="false" data-sec="'+sec+'" data-i="'+i+'">Listen</button>';
-      ol.appendChild(li);
-    });
-  });
-  applyMode();
-}
-function applyMode(){
-  document.querySelectorAll('.block').forEach(function(b){
-    b.hidden = !(mode==='both' || b.getAttribute('data-lang')===mode);
-  });
-  ['en','kn','both'].forEach(function(m){ $('l-'+m).setAttribute('aria-pressed', String(m===mode)); });
-}
-function pickVoice(lang){
-  var pre = lang.split('-')[0].toLowerCase(), want = lang.toLowerCase();
-  var cands = voices.filter(function(x){return x.lang && x.lang.toLowerCase().replace('_','-').indexOf(pre)===0});
-  if(!cands.length) return null;
-  function score(x){
-    var n = (x.name||'').toLowerCase(), s = 0;
-    if(x.lang.toLowerCase().replace('_','-')===want) s += 4;
-    if(/neural|natural|online|premium|enhanced/.test(n)) s += 6;
-    if(/google|microsoft|siri/.test(n)) s += 3;
-    if(/female|sapna|heera|neerja|veena|lekha/.test(n)) s += 1;
-    if(/espeak|compact/.test(n)) s -= 5;
-    return s;
-  }
-  cands.sort(function(a,b){return score(b)-score(a)});
-  return cands[0];
-}
-function loadVoices(){
-  voices = synth ? synth.getVoices() : [];
-  var note = $('voicenote');
-  if(!synth){ note.hidden=false; note.textContent='This browser cannot read aloud. Open the page in Chrome, Edge or Safari to use Listen.'; return; }
-  if(voices.length && !pickVoice('kn-IN')){
-    note.hidden=false;
-    note.textContent='No Kannada voice found on this device, so Kannada may be read in a default voice. On Android, install "Kannada" in Google Text-to-speech settings; on iPhone, add Kannada under Settings, Accessibility, Spoken Content.';
-  } else { note.hidden = true; }
-}
-if(synth){ loadVoices(); synth.onvoiceschanged = loadVoices; } else { loadVoices(); }
-
-function utter(text, lang, onend){
-  // speak sentence by sentence: shorter chunks sound steadier and avoid mid-text cut-offs
-  var chunks = text.match(/[^.।!?]+[.।!?]?/g) || [text], i = 0;
-  (function nextChunk(){
-    if(i>=chunks.length){ onend(); return; }
-    var c = chunks[i++].trim(); if(!c){ nextChunk(); return; }
-    var u = new SpeechSynthesisUtterance(c); u.lang = lang; u.rate = rate; u.pitch = 1;
-    var v = pickVoice(lang); if(v) u.voice = v;
-    u.onend = nextChunk; u.onerror = onend; synth.speak(u);
-  })();
-}
-var clip = null;
-function playClip(src, fallbackText, onend, lang){
-  lang = lang || 'en-IN';
-  clip = new Audio(src); clip.playbackRate = rate/0.92; var done = false;
-  function finish(){ if(!done){ done = true; onend(); } }
-  clip.onended = finish;
-  clip.onerror = function(){ if(done) return; done = true; utter(fallbackText, lang, onend); };
-  clip.play().catch(function(){ if(done) return; done = true; utter(fallbackText, lang, onend); });
-}
-function partsFor(d, sec, i){
-  var p = [];
-  if(mode==='en' || mode==='both') p.push({text:d.h+'. '+d.t, lang:'en-IN', src:(AUDIO['en-'+sec+'-'+i]||('audio/en-'+sec+'-'+i+'.mp3'))});
-  if(mode==='kn' || mode==='both') p.push({text:d.kh+'. '+d.k, lang:'kn-IN', src:AUDIO['kn-'+sec+'-'+i]||null});
-  return p;
-}
-function setNow(sec,i){
-  document.querySelectorAll('li.item').forEach(function(li){li.classList.remove('now')});
-  document.querySelectorAll('.listen').forEach(function(b){b.setAttribute('aria-pressed','false'); b.textContent='Listen'});
-  if(sec){
-    var li = $('it-'+sec+'-'+i); if(li){ li.classList.add('now'); var b = li.querySelector('.listen'); b.setAttribute('aria-pressed','true'); b.textContent='Playing';
-      li.scrollIntoView({block:'center',behavior:'smooth'}); }
-  }
-}
-function stopAll(){ token++; if(synth) synth.cancel(); if(clip){ clip.onended = null; clip.onerror = null; clip.pause(); clip = null; } setNow(null); }
-function playList(sec, start, single){
-  stopAll(); var my = token;
-  var idx = start || 0;
-  (function next(){
-    if(my!==token || idx>=DATA[sec].length){ if(my===token) setNow(null); return; }
-    setNow(sec, idx);
-    var parts = partsFor(DATA[sec][idx], sec, idx), k = 0;
-    (function part(){
-      if(my!==token) return;
-      if(k>=parts.length){ if(single){ setNow(null); return; } idx++; next(); return; }
-      var p = parts[k++];
-      if(p.src) playClip(p.src, p.text, part, p.lang); else utter(p.text, p.lang, part);
-    })();
-  })();
-}
-document.addEventListener('click', function(e){
-  var t = e.target;
-  if(t.classList.contains('listen')){
-    if(t.getAttribute('aria-pressed')==='true'){ stopAll(); return; }
-    playList(t.getAttribute('data-sec'), +t.getAttribute('data-i'), true);
-  } else if(t.hasAttribute('data-play')){ playList(t.getAttribute('data-play'), 0, false); }
-});
-$('stop').onclick = stopAll;
-$('rate').onchange = function(){ rate = parseFloat(this.value); };
-['en','kn','both'].forEach(function(m){ $('l-'+m).onclick = function(){ mode = m; applyMode(); try{localStorage.setItem('nb-mode',m)}catch(e){} }; });
-try{ var saved = localStorage.getItem('nb-mode'); if(saved) mode = saved; }catch(e){}
-render();
-</script>
+<script src="app.js"></script>
+</body>
+</html>
