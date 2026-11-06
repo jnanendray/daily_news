@@ -12,6 +12,8 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Looper;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -370,6 +372,36 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> { if (tts != null && !usingGoogle) { ttsReady = false; tts.shutdown(); initTts(true); } });
         }
         @JavascriptInterface public String appVersion() { return installedName(); }
+        /** Fetches one day's headline list for the page. Only the GDELT document API over https is allowed. */
+        @JavascriptInterface public void liveGet(final String id, final String url) {
+            final String sid = id == null ? "" : id.replaceAll("[^A-Za-z0-9]", "");
+            if (url == null || !url.startsWith("https://api.gdeltproject.org/api/v2/doc/doc?") || url.length() > 4000) {
+                evalJs("window.__live&&window.__live('" + sid + "',false,'')");
+                return;
+            }
+            new Thread(() -> {
+                try {
+                    HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+                    c.setConnectTimeout(10000);
+                    c.setReadTimeout(20000);
+                    c.setInstanceFollowRedirects(false);
+                    if (c.getResponseCode() != 200) throw new Exception("HTTP " + c.getResponseCode());
+                    ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                    byte[] buf = new byte[8192];
+                    int n;
+                    try (InputStream in = c.getInputStream()) {
+                        while ((n = in.read(buf)) > 0) {
+                            bo.write(buf, 0, n);
+                            if (bo.size() > 3000000) throw new Exception("too large");
+                        }
+                    }
+                    String b64 = android.util.Base64.encodeToString(bo.toByteArray(), android.util.Base64.NO_WRAP);
+                    evalJs("window.__live&&window.__live('" + sid + "',true,'" + b64 + "')");
+                } catch (Exception e) {
+                    evalJs("window.__live&&window.__live('" + sid + "',false,'')");
+                }
+            }).start();
+        }
         @JavascriptInterface public void requestLocation() {
             runOnUiThread(() -> {
                 if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

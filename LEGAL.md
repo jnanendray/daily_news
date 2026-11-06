@@ -22,3 +22,7 @@ This notice is not legal advice. It has not been reviewed by a lawyer.
 - Location: coarse (about 1 km) permission, requested only when the user taps Weather, never in the background. The rounded coordinates stay in the app's local storage and are sent only to Open-Meteo with the forecast request. Users can change or clear them in the pop-up.
 - Weather data: Open-Meteo.com, CC BY 4.0, credited in the pop-up and footer.
 - Calendar: do not add calendar text from Sabhadi Mutt, Gadag (or any publisher) to data/calendar.json without their permission; name the source in `source`.
+
+## Live headlines (2.9)
+- Source: GDELT Project public index (cite: https://www.gdeltproject.org/). Only headline, outlet name and link are shown; text belongs to the outlets. No article text, images or summaries are copied for live items.
+- Categories are assigned by simple keyword rules and can be wrong; the footer says so.

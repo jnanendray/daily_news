@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; media-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.gdeltproject.org https://api.open-meteo.com https://geocoding-api.open-meteo.com; media-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0C2142">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
@@ -86,7 +86,7 @@
       <svg class="ico" aria-hidden="true"><use href="#ic-cal"/></svg><span id="datelabel">Pick a date</span>
     </button>
     <button type="button" class="nav" id="next" aria-label="Next day">&#8250;</button>
-    <button type="button" class="chip" id="latest">Latest</button>
+    <button type="button" class="chip" id="latest">Today</button>
     <button type="button" class="nav" id="refresh" aria-label="Refresh" title="Refresh"><svg class="ico" aria-hidden="true"><use href="#ic-refresh"/></svg></button>
     <button type="button" class="chip" id="stop">Stop</button>
     <label class="rate" for="rate"><span class="sr">Voice speed</span><select id="rate" aria-label="Voice speed">
@@ -110,6 +110,8 @@
   <nav class="cats" id="cats" aria-label="Categories"></nav>
   <div class="subcats" id="subcats" hidden></div>
   <div class="pull" id="pull" hidden><span>Pull down to refresh</span></div>
+
+  <div class="livebar" id="livebar" hidden role="status"><span class="spinner" id="livespin" aria-hidden="true"></span><span id="livemsg"></span><button type="button" class="retry" id="liveretry" hidden>Try again</button></div>
 
   <main id="main">
     <section id="sec-in" aria-labelledby="h-in">
@@ -158,6 +160,7 @@
       <p><strong>Fonts.</strong> Inter and Noto Sans Kannada, both under the SIL Open Font License 1.1 (see the fonts folder).</p>
       <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
       <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. The Android app can show a daily reminder at a time you choose; it needs the notification permission, which you can refuse or turn off at any time. Links open in the in-app reader and those sites have their own policies. Your text size, theme, voice speed and category are saved on your device.</p>
+      <p><strong>Live headlines.</strong> When you open a day, the app collects that day's headlines (last 90 days) from Indian and Karnataka news sites through the GDELT Project's public index, sorts them automatically into categories, and links to each original report. Only the headline, outlet name and link are shown; they belong to the outlets. Data: <a href="https://www.gdeltproject.org/" rel="noopener noreferrer">GDELT Project</a>. Automatic sorting can be wrong. Days with a written briefing also show summaries.</p>
       <p><strong>Location and weather.</strong> The Weather button asks once for your approximate location (coarse, never in the background). The place is saved only on this device, rounded to about one kilometre, and is sent only to the Open-Meteo weather service with the forecast request. You can change or clear it at any time with Change location, or search for a place by name instead. Weather data by <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo.com</a> (CC BY 4.0).</p>
       <p><strong>Calendar.</strong> The Calendar button shows the Kannada festival and event calendar of Sabhadi Mutt, Gadag, only when you tap it and only with the mutt's permission; the source is named under each list.</p>
       <p><strong>Problem reports.</strong> Nothing is sent automatically. If something goes wrong, the app keeps a short local log (error messages, app version, phone model, no personal details). It is shared only if you choose Report a problem and then tap Share or Open on GitHub. Reports help us fix faults and improve the app.</p>

@@ -21,7 +21,7 @@ var APP=window.NewsApp||null;
 var LIVE='https://jnanendray.github.io/daily_news/';
 var APK='https://github.com/jnanendray/daily_news/releases/download/apk-latest/DailyNewsBriefing.apk';
 var TTL=24*3600*1000;
-var HRE=/^(\d{4}-\d{2}-\d{2})(?:\/(in|ka)-([0-9]))?$/;
+var HRE=/^(\d{4}-\d{2}-\d{2})(?:\/(in|ka|wd)-(\d{1,2}))?$/;
 
 var LOGK='dnb:log';
 function logEvent(kind,msg){
@@ -69,7 +69,7 @@ function validate(d,date){
     a.forEach(function(x){
       if(!x||typeof x!=='object')return;
       var ic=ICONS[x.ic]?x.ic:'doc';var tn=/^t[1-5]$/.test(x.tn)?x.tn:'t1';
-      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),p:x.p===1?1:0,x:x.x===1?1:0,c:cleanCats(x.c),d:str(x.d,2500),kd:str(x.kd,3500),ds:cleanSrcs(x.ds),kw:cleanKw(x.kw),u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
+      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),p:x.p===1?1:0,x:x.x===1?1:0,lv:x.lv===1?1:0,c:cleanCats(x.c),d:str(x.d,2500),kd:str(x.kd,3500),ds:cleanSrcs(x.ds),kw:cleanKw(x.kw),u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
     });
   });
   return out;
@@ -121,6 +121,142 @@ function loadMore(date){
   });
 }
 
+/* ---------- live headlines: collected when a day is opened (any day in the last 90 days) ---------- */
+var GD='https://api.gdeltproject.org/api/v2/doc/doc';
+var DOMS={'thehindu.com':'The Hindu','indianexpress.com':'Indian Express','ndtv.com':'NDTV','hindustantimes.com':'Hindustan Times','timesofindia.indiatimes.com':'Times of India','indiatoday.in':'India Today','business-standard.com':'Business Standard','ddnews.gov.in':'DD News','deccanherald.com':'Deccan Herald','bangaloremirror.indiatimes.com':'Bangalore Mirror','prajavani.net':'Prajavani','vijaykarnataka.com':'Vijay Karnataka','udayavani.com':'Udayavani','kannadaprabha.com':'Kannada Prabha','vijayavani.net':'Vijayavani','tv9kannada.com':'TV9 Kannada','publictv.in':'Public TV','kannada.asianetnews.com':'Asianet Suvarna News','samyuktakarnataka.com':'Samyukta Karnataka'};
+var KA_RE=/\b(karnataka|bengaluru|bangalore|mysuru|mysore|hubballi|hubli|dharwad|belagavi|belgaum|mangaluru|mangalore|kalaburagi|gulbarga|gadag|shivamogga|shimoga|ballari|bellary|udupi|tumakuru|hassan|mandya|bidar|vijayapura|siddaramaiah|shivakumar|bbmp|ksrtc|bmtc|namma metro|cauvery|vidhana soudha|kannada)\b/i;
+var WORLD_RE=/\b(u\.s\.|usa|america|american|trump|biden|china|chinese|pakistan|russia|russian|ukraine|israel|gaza|iran|united nations|un general|uk|britain|british|london|canada|australia|japan|bangladesh|nepal|sri lanka|maldives|afghanistan|taliban|europe|european|nato|g20|brics|saudi|uae|dubai|paris|france|germany|turkey|syria|lebanon|korea|taiwan|singapore|myanmar|africa|white house|pentagon|kremlin|beijing|washington|moscow)\b/i;
+var CAT_RE=[
+ ['sport',/cricket|\bipl\b|bcci|\bt20\b|\bodi\b|test match|wicket|batter|bowler|football|\bisl\b|hockey|tennis|badminton|kabaddi|olympic|asian games|athlete|medal|fifa|chess|grand slam|ಕ್ರಿಕೆಟ್|ಪಂದ್ಯ|ಕ್ರೀಡೆ|ಒಲಿಂಪಿಕ್/i],
+ ['tech',/\bai\b|artificial intelligence|startup|software|smartphone|cyber|semiconductor|\b5g\b|\btech\b|digital|internet|data cent|chatgpt|ತಂತ್ರಜ್ಞಾನ|ಟೆಕ್/i],
+ ['gov',/scheme|yojana|subsidy|cabinet|ministry|budget|\bgst\b|\btax\b|ration|pension|welfare|guarantee|gruha|notification|ಯೋಜನೆ|ಸಬ್ಸಿಡಿ|ಸಂಪುಟ/i],
+ ['farm',/farmer|\bfarm|\bcrop|agricultur|kisan|paddy|sugarcane|\bmsp\b|monsoon|irrigation|fertili[sz]er|harvest|drought|ರೈತ|ಕೃಷಿ|ಬೆಳೆ|ಮಳೆ/i],
+ ['sci',/\bisro\b|\bspace\b|satellite|\bnasa\b|research|scientist|climate|astronom|physics|ಇಸ್ರೋ|ವಿಜ್ಞಾನ/i],
+ ['med',/health|hospital|doctor|disease|vaccine|dengue|cancer|medical|\baiims\b|medicine|patient|virus|ಆರೋಗ್ಯ|ಆಸ್ಪತ್ರೆ|ವೈದ್ಯ/i],
+ ['college',/universit|college|campus|placement|\bneet\b|\bjee\b|\bcet\b|scholarship|admission|engineering|degree|ವಿಶ್ವವಿದ್ಯಾಲಯ|ಕಾಲೇಜು/i],
+ ['school',/\bschool|\bsslc\b|\bpuc\b|\bcbse\b|\bncert\b|board exam|teacher|students|ಶಾಲೆ|ವಿದ್ಯಾರ್ಥಿ/i],
+ ['civil',/\bupsc\b|\bias\b|\bips\b|\bkpsc\b|supreme court|high court|constitution|parliament|lok sabha|rajya sabha|election|governor|judgment|verdict|tribunal|ಸುಪ್ರೀಂ|ಹೈಕೋರ್ಟ್|ವಿಧಾನಸಭೆ/i]
+];
+var CATIC={sport:'cricket',farm:'trees',med:'cross',tech:'laptop',gov:'doc',civil:'gavel',college:'book',school:'book',sci:'bolt',world:'plane'};
+var STOP={that:1,this:1,with:1,from:1,have:1,will:1,says:1,said:1,after:1,over:1,into:1,about:1,their:1,they:1,been:1,were:1,what:1,when:1,more:1,than:1,also:1,amid:1,news:1,live:1,updates:1,today:1};
+function isKn(s){return /[ಀ-೿]/.test(s||'')}
+function inWindow(ds){var t=todayStr(),d=parse(t);d.setDate(d.getDate()-89);return ds<=t&&ds>=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function canOpen(ds){return DRE.test(ds)&&(state.dates.indexOf(ds)>=0||inWindow(ds))}
+function dayShift(ds,n){var d=parse(ds);d.setDate(d.getDate()+n);return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function outlet(domain){
+  domain=String(domain||'').toLowerCase().replace(/^www\./,'');var best='';
+  Object.keys(DOMS).forEach(function(k){if((domain===k||domain.slice(-k.length-1)==='.'+k)&&k.length>best.length)best=k});
+  return best?DOMS[best]:'';
+}
+function unent(t){return String(t).replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#0?39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim()}
+function toks(t){var o=Object.create(null);String(t).toLowerCase().split(/[^\p{L}\p{M}\p{N}]+/u).forEach(function(w){if(w.length>=(isKn(w)?3:4)&&!STOP[w])o[w]=1});return o}
+function jac(a,b){var ka=Object.keys(a),kb=Object.keys(b),i=0;ka.forEach(function(k){if(b[k])i++});var u=ka.length+kb.length-i;return u?i/u:0}
+function contain(a,b){var ka=Object.keys(a),i=0;if(ka.length<3)return false;ka.forEach(function(k){if(b[k])i++});return i/ka.length>=0.6}
+function gdt(ms){var d=new Date(ms);return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())}
+function liveUrl(date){
+  var p=date.split('-'),st=Date.UTC(+p[0],+p[1]-1,+p[2])-19800000,en=st+86400000-1000;
+  var q='('+Object.keys(DOMS).map(function(k){return 'domain:'+k}).join(' OR ')+')';
+  return GD+'?query='+encodeURIComponent(q)+'&mode=artlist&maxrecords=250&format=json&sort=hybridrel&startdatetime='+gdt(st)+'&enddatetime='+gdt(en);
+}
+var gateAt=0;
+function gate(){var now=Date.now(),w=Math.max(0,gateAt+5500-now);gateAt=now+w;return new Promise(function(r){setTimeout(r,w)})}
+var liveCbs={},liveId=0;
+window.__live=function(id,ok,b64){var f=liveCbs[id];delete liveCbs[id];if(f)f(ok,b64)};
+function liveText(url){
+  return new Promise(function(res,rej){
+    if(APP&&APP.liveGet){
+      var id='l'+(++liveId);
+      liveCbs[id]=function(ok,b){if(!ok)return rej(new Error('net'));try{var bin=atob(b),by=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)by[i]=bin.charCodeAt(i);res(new TextDecoder('utf-8').decode(by))}catch(e){rej(e)}};
+      APP.liveGet(id,url);
+      setTimeout(function(){if(liveCbs[id]){delete liveCbs[id];rej(new Error('timeout'))}},30000);
+    }else{
+      var ac=window.AbortController?new AbortController():null,tm=ac?setTimeout(function(){ac.abort()},25000):null;
+      fetch(url,{credentials:'omit',referrerPolicy:'no-referrer',signal:ac?ac.signal:undefined}).then(function(r){if(tm)clearTimeout(tm);if(!r.ok)throw new Error(r.status);return r.text()}).then(res,rej);
+    }
+  });
+}
+function liveFetch(date,attempt){
+  return gate().then(function(){return liveText(liveUrl(date))}).then(function(txt){
+    try{return JSON.parse(txt)}catch(e){if((attempt||0)<1)return liveFetch(date,1);throw new Error('format')}
+  });
+}
+function buildLive(j,date){
+  var arts=(j&&Array.isArray(j.articles))?j.articles:[];
+  var items=[];
+  arts.forEach(function(a){
+    if(!a||typeof a.url!=='string'||typeof a.title!=='string')return;
+    var url=a.url.replace(/^http:\/\//i,'https://');if(!/^https:\/\//.test(url)||url.length>480)return;
+    var name=outlet(a.domain);if(!name)return;
+    var lang=String(a.language||'').toLowerCase();if(lang!=='english'&&lang!=='kannada')return;
+    var title=unent(a.title).slice(0,200);if(title.length<24)return;
+    items.push({title:title,url:url,name:name,kn:lang==='kannada'||isKn(title),tk:toks(title)});
+  });
+  var cl=[];
+  items.forEach(function(it){
+    for(var i=0;i<cl.length;i++){if(cl[i].kn===it.kn&&jac(cl[i].rep.tk,it.tk)>=0.45){if(cl[i].names.indexOf(it.name)<0)cl[i].names.push(it.name);return}}
+    cl.push({rep:it,kn:it.kn,names:[it.name]});
+  });
+  var out={in:[],ka:[],wd:[]};
+  cl.forEach(function(c){
+    var r=c.rep,sec='in';
+    if(r.kn)sec='ka';else if(/Deccan Herald|Bangalore Mirror/.test(r.name)&&KA_RE.test(r.title))sec='ka';else if(WORLD_RE.test(r.title))sec='wd';
+    var cats=[];CAT_RE.forEach(function(x){if(cats.length<3&&x[1].test(r.title))cats.push(x[0])});
+    if(sec==='wd')cats.unshift('world');
+    c.sec=sec;c.cats=cats.slice(0,3);c.score=c.names.length;
+  });
+  var order=cl.slice().sort(function(a,b){return b.score-a.score});
+  var rank={in:0,ka:0,wd:0};
+  order.forEach(function(c){
+    var n=rank[c.sec]++;if(n>=25)return;
+    var ic=CATIC[c.cats.filter(function(x){return CATIC[x]})[0]]||(c.sec==='wd'?'plane':'doc');
+    out[c.sec].push({h:c.kn?'':c.rep.title,kh:c.kn?c.rep.title:'',t:'',k:'',s:c.names.slice(0,4).join(', '),w:'',p:(n<3&&c.score>=(c.sec==='ka'?2:3))?1:0,x:n>=12?1:0,c:c.cats.filter(function(x){return CODES[x]}),u:c.rep.url,ic:ic,tn:'t'+(1+(n%5)),lv:1});
+  });
+  return validate(out,date);
+}
+function mergeLive(base,L){
+  var out={date:base.date,in:base.in.slice(),ka:base.ka.slice(),wd:base.wd.slice()};
+  var seen=Object.create(null),bt=[];
+  SECS.forEach(function(sec){base[sec].forEach(function(it){if(it.u)seen[it.u]=1;if(!it.lv)bt.push(toks(it.h+' '+it.t))})});
+  SECS.forEach(function(sec){L[sec].forEach(function(it){
+    if(it.u&&seen[it.u])return;
+    var tk=toks(it.h||it.kh);
+    for(var i=0;i<bt.length;i++){if(contain(tk,bt[i]))return}
+    out[sec].push(it);
+  })});
+  return out;
+}
+function liveDay(date,force){
+  var key='dnb:d:live-'+date,ttl=date===todayStr()?30*60000:TTL;
+  if(!force){try{var c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.u<=ttl){var v=validate(c.d,date);if(v)return Promise.resolve(v)}}catch(e){}}
+  return liveFetch(date).then(function(j){
+    var L=buildLive(j,date);if(!L)throw new Error('shape');
+    try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:L}))}catch(e){}
+    return L;
+  });
+}
+function liveBar(kind,msg){
+  var b=$('livebar');if(!kind){b.hidden=true;return}
+  b.hidden=false;b.className='livebar '+kind;
+  $('livemsg').textContent=msg;$('livespin').hidden=kind!=='load';$('liveretry').hidden=kind!=='err';
+}
+function startLive(date,my,force){
+  if(!inWindow(date))return;
+  liveBar('load','Collecting this day’s headlines from Indian news sites');
+  var base=(state.dates.indexOf(date)>=0&&mem[date])?mem[date]:{date:date,in:[],ka:[],wd:[]};
+  liveDay(date,force).then(function(L){
+    if(my!==token||state.cur!==date)return;
+    state.data=mergeLive(base,L);
+    var n=L.in.length+L.ka.length+L.wd.length;
+    liveBar(n?'ok':'none',n?'Live headlines added: '+n+' from Indian news sites, sorted automatically into categories. Data: GDELT Project.':'No extra headlines were found for this day.');
+    renderAll();focusCard();
+  }).catch(function(){
+    if(my!==token||state.cur!==date)return;
+    logEvent('live','headlines for '+date+' failed');
+    liveBar('err','Could not collect live headlines. Check your connection.');
+    if(!(state.data&&(state.data.in.length||state.data.ka.length||state.data.wd.length))){state.data=base;renderAll();$('catempty').hidden=true}
+  });
+}
+
 /* ---------- render ---------- */
 function iconc(name){
   var s=document.createElementNS(NS,'svg');s.setAttribute('aria-hidden','true');s.setAttribute('class','ci');
@@ -163,12 +299,13 @@ function kwPara(text,kws,field){
   return p;
 }
 function card(sec,it,i){
-  var li=el('li','card fade');li.dataset.sec=sec;li.dataset.i=i;li.id='a-'+sec+'-'+i;
+  var lv=!!it.lv;
+  var li=el('li','card fade'+(lv?' lv':''));li.dataset.sec=sec;li.dataset.i=i;li.id='a-'+sec+'-'+i;
   var tile=el('div','tile '+it.tn);tile.appendChild(icon(it.ic));
   var b=el('div','body');
-  var en=el('div','en');en.appendChild(el('h3',null,it.h));en.appendChild(kwPara(it.t,it.kw,'w'));
+  var en=el('div','en');if(it.h)en.appendChild(el('h3',null,it.h));if(!lv)en.appendChild(kwPara(it.t,it.kw,'w'));
   if(it.w&&it.w.length>14)en.appendChild(el('p','why','Why it matters: '+it.w));
-  var kn=el('div','kn');kn.lang='kn';kn.appendChild(el('h4',null,it.kh));kn.appendChild(kwPara(it.k,it.kw,'kw'));
+  var kn=el('div','kn');kn.lang='kn';if(it.kh)kn.appendChild(el('h4',null,it.kh));if(!lv)kn.appendChild(kwPara(it.k,it.kw,'kw'));
   var row=el('div','row');
   var be=el('button','b-en','Listen');be.type='button';be.dataset.act='en';
   var bk=el('button','b-kn','ಕೇಳಿ');bk.type='button';bk.dataset.act='kn';bk.lang='kn';
@@ -177,6 +314,7 @@ function card(sec,it,i){
   var eq=el('span','eq');for(var q=0;q<4;q++)eq.appendChild(document.createElement('i'));sp.appendChild(eq);
   row.appendChild(sp);row.appendChild(be);row.appendChild(bk);row.appendChild(bs);
   if(it.u){var a=el('a','src','Original report');a.href=it.u;a.target='_blank';a.rel='noopener noreferrer';row.appendChild(a)}
+  if(lv){b.appendChild(el('span','badge live','Live headline'));if(!it.h)row.removeChild(be);if(!it.kh)row.removeChild(bk)}
   if(it.p){li.classList.add('hot');b.appendChild(el('span','badge','Important'))}
   var sum=el('div','sum');sum.appendChild(en);sum.appendChild(kn);
   var tabs=el('div','tabs');tabs.setAttribute('role','tablist');
@@ -184,7 +322,7 @@ function card(sec,it,i){
   var t2=el('button',null,'More details');t2.type='button';t2.setAttribute('role','tab');t2.setAttribute('aria-selected','false');t2.dataset.tab='more';
   tabs.appendChild(t1);tabs.appendChild(t2);
   var more=el('div','more');more.setAttribute('role','tabpanel');
-  b.appendChild(tabs);b.appendChild(sum);b.appendChild(more);b.appendChild(row);if(it.s)b.appendChild(sourceLine(it));
+  if(!lv)b.appendChild(tabs);b.appendChild(sum);if(!lv)b.appendChild(more);b.appendChild(row);if(it.s)b.appendChild(sourceLine(it));
   li.appendChild(tile);li.appendChild(b);return li;
 }
 function matches(it,sec){
@@ -237,8 +375,8 @@ function drawDigest(){
     var ul=el('ul','dg');
     arr.forEach(function(it,i){
       var li=el('li');var bt=el('button',null);bt.type='button';bt.dataset.sec=sec;bt.dataset.i=i;
-      var h=state.mode==='kn'&&it.kh?it.kh:it.h,t=state.mode==='kn'&&it.k?firstSentence(it.k):firstSentence(it.t);
-      var strong=el('strong',null,h);if(state.mode==='kn'&&it.kh)strong.lang='kn';
+      var h=state.mode==='kn'&&it.kh?it.kh:(it.h||it.kh),t=state.mode==='kn'&&it.k?firstSentence(it.k):firstSentence(it.t);
+      var strong=el('strong',null,h);if(isKn(h))strong.lang='kn';
       if(it.p){var bd=el('span','badge','Important');bt.appendChild(bd);bt.appendChild(document.createTextNode(' '))}
       bt.appendChild(strong);var sp=el('span',null,t);if(state.mode==='kn'&&it.k)sp.lang='kn';bt.appendChild(sp);
       li.appendChild(bt);ul.appendChild(li);
@@ -301,9 +439,8 @@ function paint(){
   $('dateline').textContent=fmt(d);
   $('dateline-kn').textContent=fmtKn(d);
   $('datelabel').textContent=parse(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
-  var i=state.dates.indexOf(d);
-  $('prev').disabled=!(i>=0&&i<state.dates.length-1)&&!(i<0&&state.dates.length);
-  $('next').disabled=!(i>0);
+  $('prev').disabled=!canOpen(dayShift(d,-1));
+  $('next').disabled=!canOpen(dayShift(d,1));
   document.title='Daily News Briefing, '+d;
 }
 
@@ -317,16 +454,21 @@ function go(date,noHash,focus){
   paint();showSkeleton();closeCal();
   if(!noHash){try{history.replaceState(null,'','#'+date)}catch(e){location.hash=date}}
   state.focus=focus||null;
-  if(state.dates.indexOf(date)<0){showEmpty(date);return}
+  var cur=state.dates.indexOf(date)>=0,win=inWindow(date);
+  liveBar(null);
+  if(!cur&&!win){showEmpty(date);return}
+  if(!cur){state.data={date:date,in:[],ka:[],wd:[]};startLive(date,my);return}
   loadDay(date).then(function(d){
     if(my!==token)return;
     if(!d){showEmpty(date);return}
     state.data=d;renderAll();prefetch(date);focusCard();
+    if(win)startLive(date,my);
   }).catch(function(){
     if(my!==token)return;
     SECS.forEach(function(sec){$('list-'+sec).textContent=''});
     logEvent('load','day '+date+' failed');
     var li=el('li','empty','Could not load this day. Check your connection and try again.');$('list-in').appendChild(li);
+    if(win)startLive(date,my);
   });
 }
 function focusCard(){
@@ -344,12 +486,7 @@ function shareText(title,url){
   toast(url);
 }
 function parseHash(){var m=HRE.exec(location.hash.slice(1));return m?{d:m[1],f:m[2]?m[2]+'-'+m[3]:null}:null}
-function step(n){
-  var i=state.dates.indexOf(state.cur);
-  if(i<0){return}
-  var j=i-n; /* dates sorted newest first; n=-1 is previous day (older) */
-  if(j>=0&&j<state.dates.length)go(state.dates[j]);
-}
+function step(n){var nd=dayShift(state.cur,n);if(canOpen(nd))go(nd)}
 
 /* ---------- calendar ---------- */
 function openCal(){ $('cal').hidden=false;$('datebtn').setAttribute('aria-expanded','true');drawCal() }
@@ -361,10 +498,11 @@ function drawCal(){
   for(var i=0;i<first;i++)g.appendChild(el('span'));
   for(var d=1;d<=days;d++){
     var ds=y+'-'+pad(m+1)+'-'+pad(d),b=el('button',null,String(d));b.type='button';b.dataset.d=ds;
-    if(state.dates.indexOf(ds)>=0)b.className='has';else b.setAttribute('aria-disabled','true');
+    var cu=state.dates.indexOf(ds)>=0;
+    if(cu)b.className='has';else if(inWindow(ds))b.className='live';else b.setAttribute('aria-disabled','true');
     if(ds===state.cur)b.classList.add('sel');
     if(ds===t)b.classList.add('today');
-    b.setAttribute('aria-label',fmt(ds)+(b.classList.contains('has')?', briefing available':', no briefing'));
+    b.setAttribute('aria-label',fmt(ds)+(cu?', written briefing available':inWindow(ds)?', live headlines':', no news'));
     g.appendChild(b);
   }
 }
@@ -448,7 +586,7 @@ function start(jobs){
 function jobsFor(item,node,wantEn,wantKn){
   var j=[];
   var more=node&&node.dataset&&node.dataset.tab==='more'&&(item.d||item.kd);
-  if(wantEn)j.push({lang:'en',text:more?(item.d||item.t):item.h+'. '+item.t,node:node});
+  if(wantEn&&(item.h||item.t))j.push({lang:'en',text:more?(item.d||item.t):item.h+'. '+item.t,node:node});
   if(wantKn&&(item.kh||item.k))j.push({lang:'kn',text:more?(item.kd||item.k):item.kh+'. '+item.k,node:node});
   return j;
 }
@@ -788,6 +926,8 @@ function refresh(manual){
   if(playing&&!manual)return;
   refreshing=true;var btn=$('refresh');btn.classList.add('spinning');btn.disabled=true;
   var cur=state.cur,before=JSON.stringify(state.data);
+  try{localStorage.removeItem('dnb:d:live-'+cur)}catch(e){}
+  if(state.dates.indexOf(cur)<0){done('Collecting the latest headlines');startLive(cur,token,true);return}
   function done(msg){refreshing=false;btn.classList.remove('spinning');btn.disabled=false;lastRefresh=Date.now();if(manual&&msg)toast(msg)}
   if(EMB){setTimeout(function(){done('Up to date')},400);return}
   delete mem[cur];delete moreMem[cur];
@@ -800,7 +940,7 @@ function refresh(manual){
     return loadDay(cur).then(function(d){
       if(cur!==state.cur)return done();
       if(!d){done('Nothing new');return}
-      state.data=d;paint();renderAll();
+      state.data=d;paint();renderAll();startLive(cur,token,true);
       done(JSON.stringify(d)!==before?'Updated with the latest stories':'Already up to date');
     });
   }).catch(function(){logEvent('refresh','failed');done('Could not refresh. Check your connection.');if(state.data===null||mem[cur]===undefined){loadDay(cur).catch(function(){})}});
@@ -846,12 +986,13 @@ function init(){
   $('l-both').addEventListener('click',function(){setMode('both')});
   $('prev').addEventListener('click',function(){step(-1)});
   $('next').addEventListener('click',function(){step(1)});
-  $('latest').addEventListener('click',function(){if(state.latest)go(state.latest)});
+  $('latest').addEventListener('click',function(){go(todayStr())});
+  $('liveretry').addEventListener('click',function(){startLive(state.cur,token,true)});
   $('stop').addEventListener('click',stopSpeech);
   $('datebtn').addEventListener('click',function(){$('cal').hidden?openCal():closeCal()});
   $('cal-prev').addEventListener('click',function(){state.vm--;if(state.vm<0){state.vm=11;state.vy--}drawCal()});
   $('cal-next').addEventListener('click',function(){state.vm++;if(state.vm>11){state.vm=0;state.vy++}drawCal()});
-  $('cal-grid').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.classList.contains('has'))go(b.dataset.d)});
+  $('cal-grid').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&(b.classList.contains('has')||b.classList.contains('live')))go(b.dataset.d)});
   document.addEventListener('click',function(e){if(!$('cal').hidden&&!e.target.closest('#daybar'))closeCal()});
   document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!$('sheet').hidden){closeSheet();return}closeCal();$('datebtn').focus()}});
   $('main').addEventListener('click',function(e){
@@ -872,7 +1013,7 @@ function init(){
     }
     var b=e.target.closest('.row button');if(!b)return;
     var c=b.closest('.card'),it=state.data[c.dataset.sec][+c.dataset.i];
-    if(b.dataset.act==='share'){shareText(it.h,LIVE+'#'+state.cur+'/'+c.dataset.sec+'-'+c.dataset.i);return}
+    if(b.dataset.act==='share'){shareText(it.h||it.kh,it.lv&&it.u?it.u:LIVE+'#'+state.cur+'/'+c.dataset.sec+'-'+c.dataset.i);return}
     start(jobsFor(it,c,b.dataset.act==='en',b.dataset.act==='kn'));
   });
   var sx=null,sy=0;
@@ -888,7 +1029,7 @@ function init(){
     ds.sort().reverse();state.dates=ds;
     state.latest=(ix&&DRE.test(ix.latest||''))?ix.latest:(ds[0]||todayStr());
     var h=parseHash();
-    if(h)go(h.d,true,h.f);else go(state.latest,true);
+    if(h)go(h.d,true,h.f);else go(todayStr(),true);
   }).catch(function(){
     logEvent('offline','briefing list failed');
     $('dateline').textContent='Offline';

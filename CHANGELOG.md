@@ -55,3 +55,7 @@
 - Calendar pop-up: reads data/calendar.json only when tapped (`{"source":{"n","u"},"events":[{"d","t","k"}]}`). Content from Sabhadi Mutt, Gadag must be added with the mutt's permission.
 - Icons on every category tab and sub-tab.
 - Default theme is Eye comfort (new setting key, so existing installs switch once; the choice is still changeable).
+
+## 2.9
+- Any day in the last 90 days can be opened from the calendar, with the arrows or by swiping. Days with a written briefing show it first; every day then gets live headlines collected at that moment from Indian and Karnataka news sites (GDELT Project index), clustered by topic, ranked by how many outlets reported them, and sorted automatically into India, Karnataka, World, Sports, Students and General categories. Live items carry a "Live headline" badge, an outlet name and a link to the original report only. Cached 30 minutes for today and 24 hours for earlier days. The app opens on Today. A status bar shows progress, the result, or a retry button.
+- Android: new `liveGet` bridge (https api.gdeltproject.org only) so the app does not depend on browser cross-site rules.

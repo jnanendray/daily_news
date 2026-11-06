@@ -226,3 +226,11 @@ a.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;bord
 .wx-days li span:first-of-type{flex:1}
 .sheet input[type=search]{width:100%;font:inherit;color:var(--ink);background:var(--glass);border:1px solid var(--line);border-radius:12px;padding:10px;min-height:44px}
 .sheet .attr{font-size:12px;color:var(--mut);margin-top:10px}.sheet .attr a{color:var(--acc)}
+
+.livebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 10px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:var(--glass);font-size:13px;color:var(--mut)}
+.livebar[hidden]{display:none}.livebar .spinner[hidden],.livebar .retry[hidden]{display:none}.livebar .spinner{width:18px;height:18px;border-width:3px}
+.livebar.err{color:var(--ink)}
+.badge.live{background:var(--glass-b);color:var(--ink);border:1px solid var(--line)}
+body[data-mode=kn] .lv .en,body[data-mode=en] .lv .kn{display:block}
+.lv .en h3{font-size:16px;line-height:1.35}.lv .kn h4{font-size:16px;line-height:1.5}
+.cal .live{background:transparent;border:1px dashed var(--line);color:var(--ink)}
