@@ -193,6 +193,7 @@ function buildLive(j,date){
     var name=outlet(a.domain);if(!name)return;
     var lang=String(a.language||'').toLowerCase();if(lang!=='english'&&lang!=='kannada')return;
     var title=unent(a.title).slice(0,200);if(title.length<24)return;
+    if(/suicide|\brape|molest|sexual (abuse|assault|harass)|ಆತ್ಮಹತ್ಯೆ|ಅತ್ಯಾಚಾರ/i.test(title))return;
     items.push({title:title,url:url,name:name,kn:lang==='kannada'||isKn(title),tk:toks(title)});
   });
   var cl=[];

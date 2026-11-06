@@ -28,30 +28,27 @@ DOMS = {
 FEEDS = [
  ('https://www.thehindu.com/news/national/feeder/default.rss', 'The Hindu', 'in', '', 'en'),
  ('https://www.thehindu.com/news/international/feeder/default.rss', 'The Hindu', 'wd', 'world', 'en'),
- ('https://www.thehindu.com/news/national/karnataka/feeder/default.rss', 'The Hindu', 'ka', '', 'en'),
  ('https://www.thehindu.com/sport/feeder/default.rss', 'The Hindu', 'in', 'sport', 'en'),
  ('https://www.thehindu.com/business/feeder/default.rss', 'The Hindu', 'in', 'business', 'en'),
  ('https://indianexpress.com/section/india/feed/', 'Indian Express', 'in', '', 'en'),
  ('https://indianexpress.com/section/world/feed/', 'Indian Express', 'wd', 'world', 'en'),
  ('https://indianexpress.com/section/sports/feed/', 'Indian Express', 'in', 'sport', 'en'),
- ('https://indianexpress.com/section/cities/bangalore/feed/', 'Indian Express', 'ka', '', 'en'),
  ('https://feeds.feedburner.com/ndtvnews-india-news', 'NDTV', 'in', '', 'en'),
  ('https://feeds.feedburner.com/ndtvnews-world-news', 'NDTV', 'wd', 'world', 'en'),
  ('https://feeds.feedburner.com/ndtvsports-latest', 'NDTV', 'in', 'sport', 'en'),
  ('https://www.hindustantimes.com/feeds/rss/india-news/rssfeed.xml', 'Hindustan Times', 'in', '', 'en'),
  ('https://www.hindustantimes.com/feeds/rss/world-news/rssfeed.xml', 'Hindustan Times', 'wd', 'world', 'en'),
  ('https://www.hindustantimes.com/feeds/rss/cricket/rssfeed.xml', 'Hindustan Times', 'in', 'sport', 'en'),
- ('https://www.hindustantimes.com/feeds/rss/cities/bengaluru-news/rssfeed.xml', 'Hindustan Times', 'ka', '', 'en'),
  ('https://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms', 'Times of India', 'in', '', 'en'),
  ('https://timesofindia.indiatimes.com/rssfeeds/296589292.cms', 'Times of India', 'wd', 'world', 'en'),
  ('https://timesofindia.indiatimes.com/rssfeeds/4719148.cms', 'Times of India', 'in', 'sport', 'en'),
- ('https://timesofindia.indiatimes.com/rssfeeds/2950623.cms', 'Times of India', 'ka', '', 'en'),
  ('https://www.indiatoday.in/rss/1206514', 'India Today', 'in', '', 'en'),
  ('https://www.deccanherald.com/rss-feed/state', 'Deccan Herald', 'ka', '', 'en'),
+ ('https://bangaloremirror.indiatimes.com/rssfeedsdefault.cms', 'Bangalore Mirror', 'ka', '', 'en'),
+ ('https://kannada.news18.com/commonfeeds/v1/kan/rss/latest.xml', 'News18 Kannada', 'ka', '', 'kn'),
  ('https://www.deccanherald.com/rss-feed/national', 'Deccan Herald', 'in', '', 'en'),
  ('https://www.deccanherald.com/rss-feed/sports', 'Deccan Herald', 'in', 'sport', 'en'),
  ('https://www.deccanherald.com/rss-feed/international', 'Deccan Herald', 'wd', 'world', 'en'),
- ('https://www.newindianexpress.com/Karnataka/rssfeed/?id=190&getXmlFeed=true', 'New Indian Express', 'ka', '', 'en'),
  ('https://www.business-standard.com/rss/latest.rss', 'Business Standard', 'in', 'business', 'en'),
  ('https://www.livemint.com/rss/news', 'Mint', 'in', '', 'en'),
  ('https://www.prajavani.net/rss', 'Prajavani', 'ka', '', 'kn'),
@@ -61,7 +58,6 @@ FEEDS = [
  ('https://tv9kannada.com/feed', 'TV9 Kannada', 'ka', '', 'kn'),
  ('https://publictv.in/feed', 'Public TV', 'ka', '', 'kn'),
  ('https://kannada.asianetnews.com/rss', 'Asianet Suvarna News', 'ka', '', 'kn'),
- ('https://kannada.news18.com/rss/karnataka.xml', 'News18 Kannada', 'ka', '', 'kn'),
 ]
 KA_RE = re.compile(r'\b(karnataka|bengaluru|bangalore|mysuru|mysore|hubballi|hubli|dharwad|belagavi|belgaum|mangaluru|mangalore|kalaburagi|gulbarga|gadag|shivamogga|shimoga|ballari|bellary|udupi|tumakuru|hassan|mandya|bidar|vijayapura|siddaramaiah|shivakumar|bbmp|ksrtc|bmtc|namma metro|cauvery|vidhana soudha|kannada)\b', re.I)
 WORLD_RE = re.compile(r'\b(u\.s\.|usa|america|american|trump|biden|china|chinese|pakistan|russia|russian|ukraine|israel|gaza|iran|united nations|un general|uk|britain|british|london|canada|australia|japan|bangladesh|nepal|sri lanka|maldives|afghanistan|taliban|europe|european|nato|g20|brics|saudi|uae|dubai|paris|france|germany|turkey|syria|lebanon|korea|taiwan|singapore|myanmar|africa|white house|pentagon|kremlin|beijing|washington|moscow)\b', re.I)
@@ -84,6 +80,7 @@ CAT_RE = [(k, re.compile(v, re.I)) for k, v in CAT_RE]
 CATIC = {'politics': 'ballot', 'business': 'chart', 'environment': 'drop', 'entertainment': 'mic', 'sport': 'cricket',
          'farm': 'trees', 'med': 'cross', 'tech': 'laptop', 'gov': 'doc', 'civil': 'gavel', 'college': 'book',
          'school': 'book', 'sci': 'bolt', 'world': 'plane'}
+SENS = re.compile(r'suicide|\brape|molest|sexual (abuse|assault|harass)|ಆತ್ಮಹತ್ಯೆ|ಅತ್ಯಾಚಾರ', re.I)   # not shown: suicide and sexual-violence reports
 STOP = set('that this with from have will says said after over into about their they been were what when more than also amid news live updates today'.split())
 KN = re.compile(r'[ಀ-೿]')
 
@@ -161,7 +158,11 @@ def discover(url):
                 u = urllib.parse.urljoin(root, html.unescape(h.group(1)))
                 if u.startswith('https://') and u not in found:
                     found.append(u)
-    return found[:4]
+    for suffix in ('rss', 'feed', 'rss.xml', 'feed.xml', 'rss-feed', 'rssfeed', 'stories.rss', 'rss/index.xml'):   # common spots
+        u = root + suffix
+        if u not in found:
+            found.append(u)
+    return found[:12]
 
 
 def fetch_gdelt(url):
@@ -249,6 +250,7 @@ def from_gdelt(j, date):
 
 
 def build(items, date):
+    items = [it for it in items if not SENS.search(it['title'])]
     for it in items:
         it['tk'] = toks(it['title'])
     clusters = []
