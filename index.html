@@ -16,6 +16,7 @@
 <symbol id="ic-share" viewBox="0 0 48 48"><circle cx="12" cy="24" r="5"/><circle cx="35" cy="11" r="5"/><circle cx="35" cy="37" r="5"/><path d="M16.5 21.5l14-8M16.5 26.5l14 8"/></symbol>
 <symbol id="ic-gear" viewBox="0 0 48 48"><circle cx="24" cy="24" r="6.5"/><path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M37.4 10.6l-4.2 4.2M14.8 33.2l-4.2 4.2"/></symbol>
 <symbol id="ic-refresh" viewBox="0 0 48 48"><path d="M39 24a15 15 0 1 1-4.4-10.6"/><path d="M39 7v8h-8"/></symbol>
+<symbol id="ic-menu" viewBox="0 0 48 48"><path d="M8 14h32M8 24h32M8 34h32"/></symbol>
 <symbol id="ic-star" viewBox="0 0 48 48"><path d="M24 6l5.4 11 12.1 1.7-8.8 8.5 2.1 12L24 33.5 13.2 39.2l2.1-12-8.8-8.5 12.1-1.7z"/></symbol>
 <symbol id="ic-cap" viewBox="0 0 48 48"><path d="M3 18l21-9 21 9-21 9z"/><path d="M12 22v10c0 3 6 6 12 6s12-3 12-6V22"/><path d="M45 18v12"/></symbol>
 <symbol id="ic-globe" viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c-8 8-8 26 0 34M24 7c8 8 8 26 0 34"/></symbol>
@@ -64,13 +65,14 @@
 <div class="wrap">
   <header class="hero">
     <div class="corner">
+      <button type="button" class="ibtn" id="menubtn" aria-label="Menu" aria-haspopup="dialog" title="Menu"><svg class="ico" aria-hidden="true"><use href="#ic-menu"/></svg></button>
       <button type="button" class="ibtn" id="shareapp" aria-label="Share app link" title="Share app link"><svg class="ico" aria-hidden="true"><use href="#ic-share"/></svg></button>
       <button type="button" class="ibtn" id="settings" aria-label="Settings" title="Settings"><svg class="ico" aria-hidden="true"><use href="#ic-gear"/></svg></button>
     </div>
     <div class="brand"><img class="logo" src="logo.svg" width="48" height="48" alt=""><div class="eyebrow">Daily News Briefing</div></div>
     <h1 id="dateline">Loading</h1>
     <p class="kn-date" id="dateline-kn" lang="kn"></p>
-    <p class="sub">India, Karnataka and world stories, with study and interest topics, spoken in English and Kannada.</p>
+    <p class="sub">India, Karnataka and world news in English and Kannada, with voice.</p>
     <div class="tools">
       <div class="seg" role="group" aria-label="Language">
         <button type="button" id="l-en" aria-pressed="false">English</button>
@@ -86,7 +88,6 @@
       <svg class="ico" aria-hidden="true"><use href="#ic-cal"/></svg><span id="datelabel">Pick a date</span>
     </button>
     <button type="button" class="nav" id="next" aria-label="Next day">&#8250;</button>
-    <button type="button" class="chip" id="latest">Today</button>
     <button type="button" class="nav" id="refresh" aria-label="Refresh" title="Refresh"><svg class="ico" aria-hidden="true"><use href="#ic-refresh"/></svg></button>
     <button type="button" class="chip" id="stop">Stop</button>
     <label class="rate" for="rate"><span class="sr">Voice speed</span><select id="rate" aria-label="Voice speed">
@@ -101,12 +102,13 @@
       </div>
       <div class="cal-week" aria-hidden="true"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
       <div class="cal-grid" id="cal-grid"></div>
-      <p class="cal-key">Bold days have a saved briefing.</p>
+      <p class="cal-key">Tinted days have a written briefing. Outlined days collect live headlines when opened.</p>
     </div>
   </div>
   <div class="note" id="voicenote" hidden></div>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <div class="menu" id="menu" hidden><div class="menu-bg" id="menu-bg"></div><nav class="menu-panel" id="menu-panel" role="dialog" aria-modal="true" aria-label="Menu"></nav></div>
   <nav class="cats" id="cats" aria-label="Categories"></nav>
   <div class="subcats" id="subcats" hidden></div>
   <div class="pull" id="pull" hidden><span>Pull down to refresh</span></div>

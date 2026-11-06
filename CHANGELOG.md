@@ -59,3 +59,8 @@
 ## 2.9
 - Any day in the last 90 days can be opened from the calendar, with the arrows or by swiping. Days with a written briefing show it first; every day then gets live headlines collected at that moment from Indian and Karnataka news sites (GDELT Project index), clustered by topic, ranked by how many outlets reported them, and sorted automatically into India, Karnataka, World, Sports, Students and General categories. Live items carry a "Live headline" badge, an outlet name and a link to the original report only. Cached 30 minutes for today and 24 hours for earlier days. The app opens on Today. A status bar shows progress, the result, or a retry button.
 - Android: new `liveGet` bridge (https api.gdeltproject.org only) so the app does not depend on browser cross-site rules.
+
+## 2.10
+- Side menu (top-left): Sections (Top, India, Karnataka, World), Topics (Politics, Business and economy, Sports, Technology, Science and space, Health, Agriculture, Environment, Government schemes, Entertainment), Students (School, College, Civil services) and Tools (Today, Summary, Weather, Kannada calendar, Settings, Share, Report a problem). Four new category codes: politics, business, environment, entertainment.
+- Compact layout: smaller title, subtitle and notes, one-row day bar, thinner category chips. Today moved into the menu.
+- Calendar: days that collect live headlines are now clearly outlined and tappable.

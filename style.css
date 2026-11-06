@@ -234,3 +234,46 @@ a.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;bord
 body[data-mode=kn] .lv .en,body[data-mode=en] .lv .kn{display:block}
 .lv .en h3{font-size:16px;line-height:1.35}.lv .kn h4{font-size:16px;line-height:1.5}
 .cal .live{background:transparent;border:1px dashed var(--line);color:var(--ink)}
+
+/* ---------- compact layout ---------- */
+.hero{padding:8px 4px 2px}
+.brand{gap:10px}.logo{width:34px;height:34px;border-radius:9px}
+.hero .brand{padding-right:150px}
+.eyebrow{font-size:11px}
+h1{font-size:clamp(20px,5.4vw,28px);margin:6px 0 0}
+.kn-date{font-size:13px}
+.sub{font-size:12px;margin:4px 0 8px;line-height:1.35}
+.seg button{min-height:32px;padding:5px 12px;font-size:13px}
+.corner{top:6px;gap:6px}
+.ibtn{width:38px;height:38px;border-radius:12px}.ibtn .ico{width:20px;height:20px}
+.daybar{margin:6px -4px;padding:6px 4px;gap:6px;flex-wrap:nowrap}
+.daybar .nav,.daybar .chip,.daybar .datebtn,.daybar .speaking{min-height:36px;border-radius:12px;font-size:13px}
+.daybar .nav{width:36px;flex:0 0 auto}
+.daybar .datebtn{flex:1 1 auto;min-width:0;padding:0 8px;gap:6px}
+.daybar .chip{padding:0 10px;flex:0 0 auto}
+.rate select{min-height:36px;border-radius:12px;font-size:13px;padding:0 4px}
+.cats{padding:2px 0 4px;gap:6px}.subcats{padding:0 0 4px;gap:6px}
+.cats button{min-height:30px;padding:0 11px;font-size:13px}.cats .ci{width:15px;height:15px;margin-right:4px}
+.subcats button{min-height:28px;padding:0 10px;font-size:12px}
+.sec-head{margin:10px 0 6px}
+.legal{font-size:12px}.legal p{margin:6px 0}
+.livebar{margin:4px 0 8px;padding:8px 10px;font-size:12px}
+.cal-grid button{min-height:34px;font-size:14px}
+.cal-grid button.live{color:var(--ink);font-weight:600;cursor:pointer;background:var(--glass);border:1px solid var(--line)}
+.cal-grid button.has{border:1px solid transparent}
+.cal-key{font-size:12px}
+
+.menu{position:fixed;inset:0;z-index:90}.menu[hidden]{display:none}
+.menu-bg{position:absolute;inset:0;background:rgba(10,20,40,.45)}
+.menu-panel{position:absolute;top:0;bottom:0;left:0;width:min(84vw,320px);overflow-y:auto;padding:12px 12px 24px;background:var(--calbg);border-right:1px solid var(--line);box-shadow:0 0 40px rgba(0,0,0,.35);animation:slidein .2s ease-out}
+@keyframes slidein{from{transform:translateX(-24px);opacity:0}to{transform:none;opacity:1}}
+.menu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.menu-head strong{font:700 16px Inter,system-ui}
+.menu-x{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--glass-b);color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
+.menu-panel h4{margin:14px 4px 4px;font:700 11px Inter,system-ui;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+.menu-item{display:flex;align-items:center;width:100%;min-height:40px;padding:0 10px;border:0;border-radius:10px;background:none;color:var(--ink);font:500 14px Inter,"Noto Sans Kannada",system-ui;text-align:left;cursor:pointer}
+.menu-item:hover,.menu-item:focus-visible{background:var(--glass)}
+.menu-item .ci{width:18px;height:18px;margin-right:10px;color:var(--acc)}
+@media (prefers-reduced-motion:reduce){.menu-panel{animation:none}}
+.datebtn span{white-space:nowrap}
+.datebtn .ico{flex:0 0 auto}

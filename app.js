@@ -8,12 +8,12 @@ var MON=['January','February','March','April','May','June','July','August','Sept
 var state={dates:[],latest:null,cur:null,data:null,vy:0,vm:0,mode:'both',cat:'top',sub:''};
 var SECS=['in','ka','wd'];
 var SECN={in:'India',ka:'Karnataka',wd:'World'};
-var CATN={school:'School students',college:'College students',civil:'Civil services',tech:'Technology',gov:'Government schemes',farm:'Farmers',sci:'Science',med:'Medical'};
-var GROUPS={students:['school','college','civil'],general:['tech','gov','farm','sci','med']};
-var MAIN=[['top','Top','star'],['students','Students','book'],['general','General','people'],['sport','Sports','trophy'],['world','Foreign affairs','globe'],['digest','Summary','list'],['weather','Weather','cloudsun'],['calendar','Calendar','cal']];
-var SUBIC={school:'pencil',college:'cap',civil:'building',tech:'laptop',gov:'doc',farm:'trees',sci:'flask',med:'cross'};
+var CATN={school:'School students',college:'College students',civil:'Civil services',tech:'Technology',gov:'Government schemes',farm:'Farmers',sci:'Science',med:'Health',politics:'Politics',business:'Business',environment:'Environment',entertainment:'Entertainment'};
+var GROUPS={students:['school','college','civil'],general:['politics','business','tech','gov','farm','sci','med','environment','entertainment']};
+var MAIN=[['top','Top','star'],['in','India','flag'],['ka','Karnataka','building'],['world','World','globe'],['sport','Sports','trophy'],['students','Students','book'],['general','Topics','people']];
+var SUBIC={school:'pencil',college:'cap',civil:'building',tech:'laptop',gov:'doc',farm:'trees',sci:'flask',med:'cross',politics:'ballot',business:'chart',environment:'drop',entertainment:'mic'};
 var ACTIONS={weather:1,calendar:1};
-var CODES={school:1,college:1,civil:1,tech:1,gov:1,farm:1,sci:1,med:1,sport:1,world:1};
+var CODES={school:1,college:1,civil:1,tech:1,gov:1,farm:1,sci:1,med:1,sport:1,world:1,politics:1,business:1,environment:1,entertainment:1};
 var moreMem={};
 var mem={};
 var EMB=window.__EMBED||null;
@@ -135,9 +135,13 @@ var CAT_RE=[
  ['med',/health|hospital|doctor|disease|vaccine|dengue|cancer|medical|\baiims\b|medicine|patient|virus|ಆರೋಗ್ಯ|ಆಸ್ಪತ್ರೆ|ವೈದ್ಯ/i],
  ['college',/universit|college|campus|placement|\bneet\b|\bjee\b|\bcet\b|scholarship|admission|engineering|degree|ವಿಶ್ವವಿದ್ಯಾಲಯ|ಕಾಲೇಜು/i],
  ['school',/\bschool|\bsslc\b|\bpuc\b|\bcbse\b|\bncert\b|board exam|teacher|students|ಶಾಲೆ|ವಿದ್ಯಾರ್ಥಿ/i],
+ ['politics',/\bbjp\b|congress|\bjd\(s\)|\bmla\b|chief minister|opposition|assembly|\bmodi\b|political|poll |ಬಿಜೆಪಿ|ಕಾಂಗ್ರೆಸ್|ರಾಜಕೀಯ|ಮುಖ್ಯಮಂತ್ರಿ/i],
+ ['business',/sensex|nifty|\bstock|\bmarket|economy|\bgdp\b|\brbi\b|inflation|\bbank|rupee|\bipo\b|company|profit|exports?\b|ಷೇರು|ಆರ್ಥಿಕ|ಬ್ಯಾಂಕ್/i],
+ ['environment',/pollution|air quality|forest|wildlife|\bflood|tiger|elephant|\blake\b|\briver\b|green cover|ಮಾಲಿನ್ಯ|ಅರಣ್ಯ|ಪರಿಸರ/i],
+ ['entertainment',/\bfilm|movie|actor|actress|cinema|bollywood|sandalwood|\bott\b|web series|singer|ಸಿನಿಮಾ|ಚಿತ್ರ|ನಟ/i],
  ['civil',/\bupsc\b|\bias\b|\bips\b|\bkpsc\b|supreme court|high court|constitution|parliament|lok sabha|rajya sabha|election|governor|judgment|verdict|tribunal|ಸುಪ್ರೀಂ|ಹೈಕೋರ್ಟ್|ವಿಧಾನಸಭೆ/i]
 ];
-var CATIC={sport:'cricket',farm:'trees',med:'cross',tech:'laptop',gov:'doc',civil:'gavel',college:'book',school:'book',sci:'bolt',world:'plane'};
+var CATIC={politics:'ballot',business:'chart',environment:'drop',entertainment:'mic',sport:'cricket',farm:'trees',med:'cross',tech:'laptop',gov:'doc',civil:'gavel',college:'book',school:'book',sci:'bolt',world:'plane'};
 var STOP={that:1,this:1,with:1,from:1,have:1,will:1,says:1,said:1,after:1,over:1,into:1,about:1,their:1,they:1,been:1,were:1,what:1,when:1,more:1,than:1,also:1,amid:1,news:1,live:1,updates:1,today:1};
 function isKn(s){return /[ಀ-೿]/.test(s||'')}
 function inWindow(ds){var t=todayStr(),d=parse(t);d.setDate(d.getDate()-89);return ds<=t&&ds>=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
@@ -334,6 +338,7 @@ function matches(it,sec){
     if(sub)return it.c.indexOf(sub)>=0;
     return it.c.some(function(x){return g.indexOf(x)>=0});
   }
+  if(c==='in'||c==='ka'||c==='wd')return sec===c;
   if(c==='sport')return it.c.indexOf('sport')>=0;
   if(c==='world')return sec==='wd'||it.c.indexOf('world')>=0;
   return true;
@@ -919,6 +924,30 @@ function openCalendar(){
   });
 }
 
+/* ---------- menu (side drawer) ---------- */
+function setView(cat,sub){state.cat=cat;state.sub=sub||'';lsSet('dnb:cat',cat);lsSet('dnb:sub',state.sub);stopSpeech();renderAll();window.scrollTo(0,0)}
+function menuItems(){
+  return [
+    ['Sections',[['Top stories','star',function(){setView('top')}],['India','flag',function(){setView('in')}],['Karnataka','building',function(){setView('ka')}],['World and foreign affairs','globe',function(){setView('world')}]]],
+    ['Topics',[['Politics','ballot',function(){setView('general','politics')}],['Business and economy','chart',function(){setView('general','business')}],['Sports','trophy',function(){setView('sport')}],['Technology','laptop',function(){setView('general','tech')}],['Science and space','flask',function(){setView('general','sci')}],['Health','cross',function(){setView('general','med')}],['Agriculture','trees',function(){setView('general','farm')}],['Environment','drop',function(){setView('general','environment')}],['Government schemes','doc',function(){setView('general','gov')}],['Entertainment','mic',function(){setView('general','entertainment')}]]],
+    ['Students',[['School students','pencil',function(){setView('students','school')}],['College students','cap',function(){setView('students','college')}],['Civil services','building',function(){setView('students','civil')}]]],
+    ['Tools',[['Today','cal',function(){go(todayStr())}],['Summary of all articles','list',function(){setView('digest')}],['Weather','cloudsun',openWeather],['Kannada calendar','cal',openCalendar],['Settings','gear',openSettings],['Share app link','share',function(){shareText('Daily News Briefing: India, Karnataka and world stories in English and Kannada, with a voice. Android app:',APK)}],['Report a problem','alert',function(){openReport('')}]]]
+  ];
+}
+function openMenu(){
+  var p=$('menu-panel');p.textContent='';
+  var hd=el('div','menu-head');hd.appendChild(el('strong',null,'Daily News Briefing'));var x=el('button','menu-x','×');x.type='button';x.setAttribute('aria-label','Close menu');x.addEventListener('click',closeMenu);hd.appendChild(x);p.appendChild(hd);
+  menuItems().forEach(function(g){
+    p.appendChild(el('h4',null,g[0]));
+    g[1].forEach(function(it){
+      var b=el('button','menu-item');b.type='button';b.appendChild(iconc(it[1]));b.appendChild(document.createTextNode(it[0]));
+      b.addEventListener('click',function(){closeMenu();setTimeout(it[2],60)});p.appendChild(b);
+    });
+  });
+  $('menu').hidden=false;$('menubtn').setAttribute('aria-expanded','true');try{x.focus()}catch(e){}
+}
+function closeMenu(){$('menu').hidden=true;$('menubtn').setAttribute('aria-expanded','false');try{$('menubtn').focus()}catch(e){}}
+
 /* ---------- refresh ---------- */
 var refreshing=false,lastRefresh=Date.now();
 function refresh(manual){
@@ -968,7 +997,7 @@ function init(){
   applyTheme(lsGet('dnb:theme2','sepia'));applyFs(parseInt(lsGet('dnb:fs','2'),10)||2);
   var sr=lsGet('dnb:rate','1');if([].some.call($('rate').options,function(o){return o.value===sr}))$('rate').value=sr;
   $('rate').addEventListener('change',function(){lsSet('dnb:rate',$('rate').value)});
-  var sc=lsGet('dnb:cat','top'),ss=lsGet('dnb:sub','');if(sc==='top'||sc==='students'||sc==='general'||sc==='sport'||sc==='world'||sc==='digest'){state.cat=sc;state.sub=CATN[ss]?ss:''}
+  var sc=lsGet('dnb:cat','top'),ss=lsGet('dnb:sub','');if(sc==='top'||sc==='in'||sc==='ka'||sc==='students'||sc==='general'||sc==='sport'||sc==='world'||sc==='digest'){state.cat=sc;state.sub=CATN[ss]?ss:''}
   $('settings').addEventListener('click',openSettings);
   $('refresh').addEventListener('click',function(){refresh(true)});
   setupPull();
@@ -986,7 +1015,7 @@ function init(){
   $('l-both').addEventListener('click',function(){setMode('both')});
   $('prev').addEventListener('click',function(){step(-1)});
   $('next').addEventListener('click',function(){step(1)});
-  $('latest').addEventListener('click',function(){go(todayStr())});
+  $('menubtn').addEventListener('click',openMenu);$('menu-bg').addEventListener('click',closeMenu);
   $('liveretry').addEventListener('click',function(){startLive(state.cur,token,true)});
   $('stop').addEventListener('click',stopSpeech);
   $('datebtn').addEventListener('click',function(){$('cal').hidden?openCal():closeCal()});
@@ -994,7 +1023,7 @@ function init(){
   $('cal-next').addEventListener('click',function(){state.vm++;if(state.vm>11){state.vm=0;state.vy++}drawCal()});
   $('cal-grid').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&(b.classList.contains('has')||b.classList.contains('live')))go(b.dataset.d)});
   document.addEventListener('click',function(e){if(!$('cal').hidden&&!e.target.closest('#daybar'))closeCal()});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!$('sheet').hidden){closeSheet();return}closeCal();$('datebtn').focus()}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!$('menu').hidden){closeMenu();return}if(!$('sheet').hidden){closeSheet();return}closeCal();$('datebtn').focus()}});
   $('main').addEventListener('click',function(e){
     var pa=e.target.closest('[data-play]');
     if(pa){

@@ -22,6 +22,6 @@ Every briefing is gathered from Indian news organisations, and each story names 
 
 ## Format update (2.6)
 - `data/<date>.json`: `{"date","in":[],"ka":[],"wd":[]}`. Number of stories follows importance (about 6 to 25 per section; fewer when little happened).
-- Each story may add `c`: up to 3 of school, college, civil, tech, gov, farm, sci, med, sport, world. Add `x:1` for stories that should appear only in their category and not in Top.
+- Each story may add `c`: up to 3 of school, college, civil, tech, gov, farm, sci, med, sport, world, politics, business, environment, entertainment. Add `x:1` for stories that should appear only in their category and not in Top.
 - `wd` holds foreign-affairs stories from reputed outlets (The Hindu, Indian Express, NDTV, DD News and similar).
 - More details go in `data/more/<date>.json` as `{"in-0":{"d","kd","ds":[{"n","u"}]}}` keyed by section and index. Keep each `u` a real link seen in results. Never add search-engine links.
