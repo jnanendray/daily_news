@@ -6,6 +6,11 @@ import android.content.pm.PackageManager;
 import android.app.AlertDialog;
 import android.content.pm.PackageInfo;
 import android.os.Build;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Handler;
+import android.os.Looper;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -245,6 +250,11 @@ public class MainActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
         super.onRequestPermissionsResult(code, perms, results);
+        if (code == 78) {                                   // approximate location, asked once when the user opens Weather
+            if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) fetchLocation();
+            else evalJs("window.__loc&&window.__loc('denied',0,0)");
+            return;
+        }
         if (code != 77) return;
         if (results.length > 0 && results[0] == PackageManager.PERMISSION_GRANTED) {
             Reminder.save(this, true, pendingH, pendingM);
@@ -253,6 +263,51 @@ public class MainActivity extends Activity {
         } else {
             Reminder.save(this, false, pendingH, pendingM);
             evalJs("window.__remind&&window.__remind('denied')");
+        }
+    }
+
+    /* ---------- approximate location (only when the user taps Weather; coarse permission, nothing is stored natively) ---------- */
+    private boolean locDone = false;
+
+    private void sendLoc(Location l) {
+        locDone = true;
+        evalJs("window.__loc&&window.__loc('ok'," + l.getLatitude() + "," + l.getLongitude() + ")");
+    }
+
+    private void locFail() {
+        if (locDone) return;
+        locDone = true;
+        evalJs("window.__loc&&window.__loc('fail',0,0)");
+    }
+
+    @SuppressWarnings("deprecation")
+    private void fetchLocation() {
+        locDone = false;
+        try {
+            final LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
+            if (lm == null) { locFail(); return; }
+            Location best = null;
+            String[] providers = { LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER };
+            for (String p : providers) {
+                if (!lm.isProviderEnabled(p)) continue;
+                Location l = lm.getLastKnownLocation(p);
+                if (l != null && (best == null || l.getTime() > best.getTime())) best = l;
+            }
+            if (best != null) { sendLoc(best); return; }
+            if (!lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) { locFail(); return; }
+            final LocationListener ll = new LocationListener() {
+                public void onLocationChanged(Location l) { if (!locDone) sendLoc(l); }
+                public void onStatusChanged(String p, int st, Bundle e) { }
+                public void onProviderEnabled(String p) { }
+                public void onProviderDisabled(String p) { }
+            };
+            lm.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, ll, Looper.getMainLooper());
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                try { lm.removeUpdates(ll); } catch (RuntimeException ignored) { }
+                locFail();
+            }, 20000);
+        } catch (SecurityException | IllegalArgumentException e) {
+            locFail();
         }
     }
 
@@ -315,6 +370,13 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> { if (tts != null && !usingGoogle) { ttsReady = false; tts.shutdown(); initTts(true); } });
         }
         @JavascriptInterface public String appVersion() { return installedName(); }
+        @JavascriptInterface public void requestLocation() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 23 && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 78);
+                } else fetchLocation();
+            });
+        }
         @JavascriptInterface public String updateStatus() { return updState + "|" + updLatest + "|" + updTime; }
         @JavascriptInterface public void checkUpdate() { runOnUiThread(() -> { lastUpdateCheck = 0; checkForUpdate(); }); }
         @JavascriptInterface public String engine() { return !ttsReady ? "wait" : (usingGoogle ? "google" : "other"); }

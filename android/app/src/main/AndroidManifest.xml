@@ -5,6 +5,9 @@
     <!-- Notifications (asked once, only if you turn on the daily reminder) and restoring the reminder after a restart. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Approximate location, asked once when you open Weather. Used only to request the forecast for your area. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-feature android:name="android.hardware.location" android:required="false"/>
     <!-- Android 11+ needs these so the app can see the phone's text-to-speech engine and its voice installer. -->
     <queries>
         <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>

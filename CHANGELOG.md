@@ -49,3 +49,9 @@
 ## 2.7
 - Update check runs on every open and every time the app comes forward (at most once per 20 seconds), retries 3 times, and falls back to the release page if GitHub's data service refuses. The pop-up names the new and installed versions.
 - A toast says "App is up to date" or "Could not check for updates". Settings has App updates with the result, time checked and a Check for updates button.
+
+## 2.8
+- Weather pop-up (one window): asks once for approximate location (coarse permission, only when Weather is tapped), or search a place by name. Shows temperature, feels like, humidity, wind speed and direction, rain chance, rainfall, cloud cover, rain outlook for 48 hours, next 12 hours and next 5 days. Cached 15 minutes. Data by Open-Meteo (CC BY 4.0). CSP allows only api.open-meteo.com and geocoding-api.open-meteo.com.
+- Calendar pop-up: reads data/calendar.json only when tapped (`{"source":{"n","u"},"events":[{"d","t","k"}]}`). Content from Sabhadi Mutt, Gadag must be added with the mutt's permission.
+- Icons on every category tab and sub-tab.
+- Default theme is Eye comfort (new setting key, so existing installs switch once; the choice is still changeable).

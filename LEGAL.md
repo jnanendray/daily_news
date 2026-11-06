@@ -17,3 +17,8 @@ This notice is not legal advice. It has not been reviewed by a lawyer.
 **Notifications.** The Android app can show a daily reminder only if you switch it on, and only after Android asks for your permission. No data is collected or sent.
 
 **Problem reports.** The app keeps a short local log of failures (error messages, app version, phone model, no personal details). Nothing is sent automatically. It is shared only if the user taps Share report or Open on GitHub, and the user can edit the message first.
+
+## Location, weather and calendar (2.8)
+- Location: coarse (about 1 km) permission, requested only when the user taps Weather, never in the background. The rounded coordinates stay in the app's local storage and are sent only to Open-Meteo with the forecast request. Users can change or clear them in the pop-up.
+- Weather data: Open-Meteo.com, CC BY 4.0, credited in the pop-up and footer.
+- Calendar: do not add calendar text from Sabhadi Mutt, Gadag (or any publisher) to data/calendar.json without their permission; name the source in `source`.

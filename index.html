@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=5,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.open-meteo.com https://geocoding-api.open-meteo.com; media-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0C2142">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
@@ -16,6 +16,22 @@
 <symbol id="ic-share" viewBox="0 0 48 48"><circle cx="12" cy="24" r="5"/><circle cx="35" cy="11" r="5"/><circle cx="35" cy="37" r="5"/><path d="M16.5 21.5l14-8M16.5 26.5l14 8"/></symbol>
 <symbol id="ic-gear" viewBox="0 0 48 48"><circle cx="24" cy="24" r="6.5"/><path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M37.4 10.6l-4.2 4.2M14.8 33.2l-4.2 4.2"/></symbol>
 <symbol id="ic-refresh" viewBox="0 0 48 48"><path d="M39 24a15 15 0 1 1-4.4-10.6"/><path d="M39 7v8h-8"/></symbol>
+<symbol id="ic-star" viewBox="0 0 48 48"><path d="M24 6l5.4 11 12.1 1.7-8.8 8.5 2.1 12L24 33.5 13.2 39.2l2.1-12-8.8-8.5 12.1-1.7z"/></symbol>
+<symbol id="ic-cap" viewBox="0 0 48 48"><path d="M3 18l21-9 21 9-21 9z"/><path d="M12 22v10c0 3 6 6 12 6s12-3 12-6V22"/><path d="M45 18v12"/></symbol>
+<symbol id="ic-globe" viewBox="0 0 48 48"><circle cx="24" cy="24" r="17"/><path d="M7 24h34M24 7c-8 8-8 26 0 34M24 7c8 8 8 26 0 34"/></symbol>
+<symbol id="ic-list" viewBox="0 0 48 48"><path d="M16 12h26M16 24h26M16 36h26"/><circle cx="8" cy="12" r="1.5"/><circle cx="8" cy="24" r="1.5"/><circle cx="8" cy="36" r="1.5"/></symbol>
+<symbol id="ic-people" viewBox="0 0 48 48"><circle cx="17" cy="16" r="6"/><path d="M5 40c0-8 5-12 12-12s12 4 12 12"/><circle cx="34" cy="18" r="5"/><path d="M33 29c6 0 10 4 10 11"/></symbol>
+<symbol id="ic-trophy" viewBox="0 0 48 48"><path d="M14 7h20v10c0 6-4 10-10 10s-10-4-10-10z"/><path d="M14 11H7c0 6 3 9 7 9M34 11h7c0 6-3 9-7 9"/><path d="M24 27v8M16 41h16M18 35h12"/></symbol>
+<symbol id="ic-cloudsun" viewBox="0 0 48 48"><circle cx="17" cy="15" r="6"/><path d="M17 3v3M5 15h3M8.5 6.5l2 2M25.5 6.5l-2 2"/><path d="M16 40a8 8 0 0 1 1-16 10 10 0 0 1 19 3 6.5 6.5 0 0 1-1 13z"/></symbol>
+<symbol id="ic-pencil" viewBox="0 0 48 48"><path d="M8 40l3-10L32 9l7 7-21 21z"/><path d="M28 13l7 7"/></symbol>
+<symbol id="ic-flask" viewBox="0 0 48 48"><path d="M21 6v13L9 38a3 3 0 0 0 3 4h24a3 3 0 0 0 3-4L27 19V6M19 6h10"/><path d="M14 31h20"/></symbol>
+<symbol id="ic-sun" viewBox="0 0 48 48"><circle cx="24" cy="24" r="8"/><path d="M24 5v6M24 37v6M5 24h6M37 24h6M10.6 10.6l4.2 4.2M33.2 33.2l4.2 4.2M37.4 10.6l-4.2 4.2M14.8 33.2l-4.2 4.2"/></symbol>
+<symbol id="ic-cloud" viewBox="0 0 48 48"><path d="M14 38a9 9 0 0 1 1-18 11 11 0 0 1 21 3 7.5 7.5 0 0 1-1 15z"/></symbol>
+<symbol id="ic-rain" viewBox="0 0 48 48"><path d="M14 28a8 8 0 0 1 1-16 10 10 0 0 1 19 3 6.5 6.5 0 0 1-1 13z"/><path d="M16 35l-2 6M24 35l-2 6M32 35l-2 6"/></symbol>
+<symbol id="ic-storm" viewBox="0 0 48 48"><path d="M14 26a8 8 0 0 1 1-16 10 10 0 0 1 19 3 6.5 6.5 0 0 1-1 13z"/><path d="M25 28l-5 8h6l-3 8"/></symbol>
+<symbol id="ic-fog" viewBox="0 0 48 48"><path d="M8 16h32M12 24h28M8 32h32M14 40h20"/></symbol>
+<symbol id="ic-arrow" viewBox="0 0 48 48"><path d="M24 40V8M12 20L24 8l12 12"/></symbol>
+<symbol id="ic-pin" viewBox="0 0 48 48"><path d="M24 43S10 29 10 19a14 14 0 0 1 28 0c0 10-14 24-14 24z"/><circle cx="24" cy="19" r="5"/></symbol>
 <symbol id="ic-cal" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="32" rx="6"/><path d="M6 19h36M15 5v8M33 5v8"/></symbol>
 <symbol id="ic-cyclone" viewBox="0 0 48 48"><circle cx="24" cy="24" r="2.5"/><path d="M24 12c7-1 12 4 11 11"/><path d="M36 24c1 7-4 12-11 11"/><path d="M24 36c-7 1-12-4-11-11"/><path d="M12 24c-1-7 4-12 11-11"/></symbol>
 <symbol id="ic-chart" viewBox="0 0 48 48"><path d="M8 40h32M8 40V8"/><path d="M13 31l8-9 6 5 12-14"/><path d="M31 13h8v8"/></symbol>
@@ -142,6 +158,8 @@
       <p><strong>Fonts.</strong> Inter and Noto Sans Kannada, both under the SIL Open Font License 1.1 (see the fonts folder).</p>
       <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
       <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. The Android app can show a daily reminder at a time you choose; it needs the notification permission, which you can refuse or turn off at any time. Links open in the in-app reader and those sites have their own policies. Your text size, theme, voice speed and category are saved on your device.</p>
+      <p><strong>Location and weather.</strong> The Weather button asks once for your approximate location (coarse, never in the background). The place is saved only on this device, rounded to about one kilometre, and is sent only to the Open-Meteo weather service with the forecast request. You can change or clear it at any time with Change location, or search for a place by name instead. Weather data by <a href="https://open-meteo.com/" rel="noopener noreferrer">Open-Meteo.com</a> (CC BY 4.0).</p>
+      <p><strong>Calendar.</strong> The Calendar button shows the Kannada festival and event calendar of Sabhadi Mutt, Gadag, only when you tap it and only with the mutt's permission; the source is named under each list.</p>
       <p><strong>Problem reports.</strong> Nothing is sent automatically. If something goes wrong, the app keeps a short local log (error messages, app version, phone model, no personal details). It is shared only if you choose Report a problem and then tap Share or Open on GitHub. Reports help us fix faults and improve the app.</p>
       <p><strong>Removal requests.</strong> To report an error or ask for any item to be removed, open an issue at <a href="https://github.com/jnanendray/daily_news/issues" rel="noopener noreferrer">github.com/jnanendray/daily_news</a>. See CHANGELOG.md.</p>
       <p id="appver" hidden></p>
