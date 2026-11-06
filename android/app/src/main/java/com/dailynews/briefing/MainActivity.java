@@ -126,35 +126,74 @@ public class MainActivity extends Activity {
         catch (Exception e) { return ""; }
     }
 
-    /** Asks GitHub which app version is newest. Only the version number is read; the download address is fixed in this app. */
+    private static final String RELEASE_PAGE = "https://github.com/jnanendray/daily_news/releases/tag/apk-latest";
+    private volatile String updState = "idle";      // idle | checking | uptodate | available | failed
+    private volatile String updLatest = "";
+    private volatile long updTime = 0;
+    private boolean checking = false;
+
+    private String httpGet(String url, String accept) throws Exception {
+        HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
+        c.setConnectTimeout(8000);
+        c.setReadTimeout(10000);
+        c.setUseCaches(false);
+        if (accept != null) c.setRequestProperty("Accept", accept);
+        if (c.getResponseCode() != 200) throw new Exception("HTTP " + c.getResponseCode());
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream()))) {
+            String line;
+            while ((line = r.readLine()) != null && sb.length() < 400000) sb.append(line).append('\n');
+        }
+        return sb.toString();
+    }
+
+    /** Reads versionCode and version name from the release notes. Tries GitHub's data service, then the release web page. */
+    private long[] fetchLatest() throws Exception {
+        String text;
+        try {
+            text = new JSONObject(httpGet(RELEASE_API, "application/vnd.github+json")).optString("body", "");
+        } catch (Exception first) {
+            text = httpGet(RELEASE_PAGE, null);           // not rate limited the same way
+        }
+        Matcher m = Pattern.compile("versionCode:\\s*(\\d{1,9})").matcher(text);
+        if (!m.find()) throw new Exception("no version in notes");
+        Matcher n = Pattern.compile("version\\s+(\\d+(?:\\.\\d+){1,3})").matcher(text);
+        updLatest = n.find() ? n.group(1) : "";
+        return new long[] { Long.parseLong(m.group(1)) };
+    }
+
+    /** Runs on every open and every return to the app. Only the version number is read; the download address is fixed in this app. */
     private void checkForUpdate() {
+        if (checking) return;
+        checking = true;
         lastUpdateCheck = System.currentTimeMillis();
+        updState = "checking";
         new Thread(() -> {
-            try {
-                HttpURLConnection c = (HttpURLConnection) new URL(RELEASE_API).openConnection();
-                c.setConnectTimeout(8000);
-                c.setReadTimeout(8000);
-                c.setRequestProperty("Accept", "application/vnd.github+json");
-                if (c.getResponseCode() != 200) return;
-                StringBuilder sb = new StringBuilder();
-                try (BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream()))) {
-                    String line;
-                    while ((line = r.readLine()) != null && sb.length() < 200000) sb.append(line);
+            String result = "failed";
+            for (int attempt = 0; attempt < 3 && result.equals("failed"); attempt++) {
+                try {
+                    long latest = fetchLatest()[0];
+                    result = latest > installedCode() ? "available" : "uptodate";
+                } catch (Exception e) {
+                    try { Thread.sleep(2500); } catch (InterruptedException ignored) { }
                 }
-                Matcher m = Pattern.compile("versionCode:\\s*(\\d{1,9})").matcher(new JSONObject(sb.toString()).optString("body", ""));
-                if (!m.find()) return;
-                final long latest = Long.parseLong(m.group(1));
-                if (latest > installedCode()) runOnUiThread(this::showUpdateDialog);
-            } catch (Exception ignored) { }
+            }
+            updTime = System.currentTimeMillis();
+            updState = result;
+            checking = false;
+            if (result.equals("available")) runOnUiThread(this::showUpdateDialog);
         }).start();
     }
 
     private void showUpdateDialog() {
         if (updateDialogOpen || isFinishing()) return;
         updateDialogOpen = true;
+        String have = installedName();
+        String msg = "A newer version of Daily News Briefing is ready" + (updLatest.isEmpty() ? "" : " (version " + updLatest + ")")
+            + ". You have " + have + ". Update now? Your browser will download it, then tap the downloaded file to install.";
         new AlertDialog.Builder(this)
             .setTitle("Update available")
-            .setMessage("A newer version of Daily News Briefing is ready. Update now? Your browser will download it, then tap the downloaded file to install.")
+            .setMessage(msg)
             .setPositiveButton("Update", (d, w) -> {
                 try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(APK_URL))); } catch (Exception ignored) { }
             })
@@ -165,7 +204,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume();
-        if (System.currentTimeMillis() - lastUpdateCheck > 30 * 60 * 1000L) checkForUpdate();
+        if (System.currentTimeMillis() - lastUpdateCheck > 20 * 1000L) checkForUpdate();   // every time the app comes forward
     }
 
     /* ---------- text to speech (device voice, no permission needed) ---------- */
@@ -276,6 +315,8 @@ public class MainActivity extends Activity {
             runOnUiThread(() -> { if (tts != null && !usingGoogle) { ttsReady = false; tts.shutdown(); initTts(true); } });
         }
         @JavascriptInterface public String appVersion() { return installedName(); }
+        @JavascriptInterface public String updateStatus() { return updState + "|" + updLatest + "|" + updTime; }
+        @JavascriptInterface public void checkUpdate() { runOnUiThread(() -> { lastUpdateCheck = 0; checkForUpdate(); }); }
         @JavascriptInterface public String engine() { return !ttsReady ? "wait" : (usingGoogle ? "google" : "other"); }
         @JavascriptInterface public void installGoogle() {
             runOnUiThread(() -> {

@@ -45,3 +45,7 @@
 - Settings: text size, themes (Auto uses system text and background colours, Light, Dark, Eye comfort), reminder. Pinch zoom works. Voice speed uses numbers (0.5x to 2x) and is remembered, as are the theme, text size and category.
 - Refresh button, pull down to refresh, and a refresh when the app returns after 30 minutes.
 - Share-app and settings buttons moved to the top corner.
+
+## 2.7
+- Update check runs on every open and every time the app comes forward (at most once per 20 seconds), retries 3 times, and falls back to the release page if GitHub's data service refuses. The pop-up names the new and installed versions.
+- A toast says "App is up to date" or "Could not check for updates". Settings has App updates with the result, time checked and a Check for updates button.

@@ -532,6 +532,22 @@ function openReport(crash){
     acts.appendChild(sh);acts.appendChild(gh);acts.appendChild(cl);b.appendChild(acts);
   });
 }
+function watchUpdate(n){
+  if(!(APP&&APP.updateStatus))return;
+  var st=String(APP.updateStatus()).split('|');
+  if(st[0]==='checking'||st[0]==='idle'){if(n<20)setTimeout(function(){watchUpdate(n+1)},1000);return}
+  if(st[0]==='uptodate')toast('App is up to date');
+  else if(st[0]==='failed'){logEvent('update','check failed');toast('Could not check for updates. Check your connection.')}
+}
+function updateRow(parent){
+  var row=el('div','set-row');var msg=el('span',null,'');var b=el('button',null,'Check for updates');b.type='button';
+  function show(){
+    var st=String(APP.updateStatus()).split('|'),t=+st[2]?new Date(+st[2]).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'';
+    msg.textContent=st[0]==='checking'?'Checking...':st[0]==='uptodate'?'Up to date ('+APP.appVersion()+'), checked '+t:st[0]==='available'?'A newer version is available'+(st[1]?' ('+st[1]+')':''):st[0]==='failed'?'Could not check. Check your connection.':'Not checked yet';
+  }
+  b.addEventListener('click',function(){APP.checkUpdate();msg.textContent='Checking...';var n=0;(function poll(){n++;var s=String(APP.updateStatus()).split('|')[0];if(s==='checking'&&n<25){setTimeout(poll,800);return}show()})()});
+  show();row.appendChild(msg);row.appendChild(b);parent.appendChild(row);
+}
 function checkCrash(){
   try{var c=APP&&APP.lastCrash&&APP.lastCrash();if(c){APP.clearCrash&&APP.clearCrash();logEvent('crash',c.slice(0,160));openReport(c.slice(0,300))}}catch(e){}
 }
@@ -602,6 +618,7 @@ function openSettings(){
     b.appendChild(tr);
     b.appendChild(el('p','why','Auto uses your phone’s own text and background colours. Eye comfort is a warm, low-glare theme for night reading.'));
     if(APP&&APP.getReminder&&APP.setReminder){b.appendChild(el('h4',null,'Reminder'));remindControls(b)}
+    if(APP&&APP.updateStatus){b.appendChild(el('h4',null,'App updates'));updateRow(b)}
     b.appendChild(el('h4',null,'More'));
     var acts=el('div','acts');
     if(!APP){var ga=el('a','btn','Get Android app');ga.href=APK;ga.rel='noopener noreferrer';acts.appendChild(ga)}
@@ -667,7 +684,7 @@ function init(){
   $('digest').addEventListener('click',function(e){var b=e.target.closest('button[data-sec]');if(!b)return;state.cat='top';state.sub='';lsSet('dnb:cat','top');lsSet('dnb:sub','');state.focus=b.dataset.sec+'-'+b.dataset.i;renderAll();focusCard()});
   document.addEventListener('visibilitychange',function(){if(!document.hidden&&Date.now()-lastRefresh>30*60000)refresh(false)});
   setTimeout(checkCrash,1200);
-  if(APP){checkVoices(0);document.addEventListener('visibilitychange',function(){if(!document.hidden){try{APP.refreshVoices&&APP.refreshVoices()}catch(e){}setTimeout(function(){checkVoices(0)},1500)}});try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
+  if(APP){checkVoices(0);document.addEventListener('visibilitychange',function(){if(!document.hidden){try{APP.refreshVoices&&APP.refreshVoices()}catch(e){}setTimeout(function(){checkVoices(0)},1500)}});watchUpdate(0);try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
   $('shareapp').addEventListener('click',function(){shareText('Daily News Briefing: India, Karnataka and world stories in English and Kannada, with a voice. Android app:',APK)});
   try{var m=localStorage.getItem('dnb:mode');if(m==='en'||m==='kn'||m==='both')setMode(m)}catch(e){}
   if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
