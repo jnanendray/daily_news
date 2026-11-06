@@ -14,4 +14,6 @@ Every briefing is gathered from Indian news organisations, and each story names 
 - Skip graphic crime detail and suicide reports.
 - A briefing is written only on a day the app is opened and one is requested.
 
-**Data format** (`data/YYYY-MM-DD.json`): `in` and `ka` arrays of up to 10 stories with `h`, `t` (English), `kh`, `k` (Kannada), `s` (sources), `w` (when), `ic` (icon), `tn` (tone t1 to t5), optional `p` (1 = important) and `u` (https link to the original report).
+**More details tab.** For every story, search other outlets that report the same story and write a short combined summary in your own words (`d` in English, `kd` in Kannada, 3 to 5 sentences) with the other outlets as `ds`: a list of {"n": outlet name, "u": https link to that outlet's report}. Only use facts that those reports confirm; say when reports differ or when you could not confirm a date. If nothing more can be confirmed, leave `d`, `kd` and `ds` out; the page then shows a link to find more reports.
+
+**Data format** (`data/YYYY-MM-DD.json`): `in` and `ka` arrays of up to 10 stories with `h`, `t` (English), `kh`, `k` (Kannada), `s` (sources), `w` (when), `ic` (icon), `tn` (tone t1 to t5), optional `p` (1 = important), `u` (https link to the original report), and the More details fields `d`, `kd`, `ds`.

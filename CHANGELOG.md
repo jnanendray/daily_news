@@ -1,5 +1,9 @@
 # Change log
 
+## 2.4 - 2026-11-06
+- More details tab on every story: a longer summary combined from other outlets (English and Kannada) with linked outlet names, and a link to find more reports. Filled in where other outlets' reports could be confirmed.
+- Source line (outlet name and link) at the end of every story. Karnataka stories only from Karnataka-based outlets.
+
 ## 2.3 - 2026-11-06
 - Daily reminder (Android): switch it on and pick a time; a notification "Your briefing is ready" opens the app. Asks for the notification permission once, only when switched on. Restored after restart or update.
 - Update check in the app, and builds now use one permanent signing key so updates install over the old version.

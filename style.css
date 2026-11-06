@@ -119,3 +119,10 @@ a.chip{display:inline-flex;align-items:center;text-decoration:none}
 .chip[hidden],.speed[hidden]{display:none}
 
 .srcline{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--mut)}.srcline a{color:var(--acc);text-decoration:underline}
+
+.tabs{display:flex;gap:6px;margin:0 0 10px}
+.tabs button{min-height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--glass-b);color:var(--mut);font:600 13px Inter,"Noto Sans Kannada",system-ui,sans-serif;cursor:pointer}
+.tabs button[aria-selected=true]{background:linear-gradient(180deg,var(--t1a),var(--t1b));color:#fff;border-color:transparent}
+.card:not([data-tab=more]) .more{display:none}
+.card[data-tab=more] .sum{display:none}
+.more p{margin:0 0 8px}
