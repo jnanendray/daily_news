@@ -6,11 +6,13 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0C2142">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
 <title>Daily News Briefing</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body data-mode="both">
 <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false"><defs>
+<symbol id="ic-speaker" viewBox="0 0 48 48"><path d="M8 19h7l9-8v26l-9-8H8z"/><path d="M31 18a9 9 0 0 1 0 12M36 13a16 16 0 0 1 0 22"/></symbol>
 <symbol id="ic-cal" viewBox="0 0 48 48"><rect x="6" y="9" width="36" height="32" rx="6"/><path d="M6 19h36M15 5v8M33 5v8"/></symbol>
 <symbol id="ic-cyclone" viewBox="0 0 48 48"><circle cx="24" cy="24" r="2.5"/><path d="M24 12c7-1 12 4 11 11"/><path d="M36 24c1 7-4 12-11 11"/><path d="M24 36c-7 1-12-4-11-11"/><path d="M12 24c-1-7 4-12 11-11"/></symbol>
 <symbol id="ic-chart" viewBox="0 0 48 48"><path d="M8 40h32M8 40V8"/><path d="M13 31l8-9 6 5 12-14"/><path d="M31 13h8v8"/></symbol>
@@ -42,7 +44,7 @@
 
 <div class="wrap">
   <header class="hero">
-    <div class="eyebrow">Daily News Briefing</div>
+    <div class="brand"><img class="logo" src="logo.svg" width="48" height="48" alt=""><div class="eyebrow">Daily News Briefing</div></div>
     <h1 id="dateline">Loading</h1>
     <p class="kn-date" id="dateline-kn" lang="kn"></p>
     <p class="sub">Top 10 from India and top 10 from Karnataka, with a spoken version in English and Kannada.</p>
@@ -72,6 +74,7 @@
     <button type="button" class="nav" id="next" aria-label="Next day">&#8250;</button>
     <button type="button" class="chip" id="latest">Latest</button>
     <button type="button" class="chip" id="stop">Stop</button>
+    <span class="speaking" id="speaking" hidden><svg class="ico" aria-hidden="true"><use href="#ic-speaker"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="speaking-t">Speaking</span></span>
     <div class="cal" id="cal" role="dialog" aria-label="Choose a date" hidden>
       <div class="cal-head">
         <button type="button" class="nav" id="cal-prev" aria-label="Previous month">&#8249;</button>
@@ -108,6 +111,7 @@
     <details class="legal">
       <summary>About, copyright and privacy</summary>
       <p><strong>Copyright.</strong> &copy; 2026 jnanendray. All rights reserved for this app's own code, design and icons. News belongs to the publishers named on each story. Their names and trademarks belong to them and are used only to credit the source.</p>
+      <p><strong>Sources.</strong> Stories are gathered from Indian news channels and newspapers, and Karnataka stories from the state's local channels and newspapers. Each story names its sources. Stories marked Important were reported recently and matter to many people.</p>
       <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
       <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. Links open in the in-app reader and those sites have their own policies.</p>
       <p><strong>Removal requests.</strong> To report an error or ask for any item to be removed, open an issue at <a href="https://github.com/jnanendray/daily_news/issues" rel="noopener noreferrer">github.com/jnanendray/daily_news</a>. Version 2.0, see CHANGELOG.md.</p>

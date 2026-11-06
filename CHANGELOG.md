@@ -1,5 +1,13 @@
 # Change log
 
+## 2.1 - 2026-11-06
+- Speaking animation: an animated speaker with moving bars shows on the story being read, and a Speaking indicator stays in the top bar.
+- Android voice: the app now asks for Google Speech Services (com.google.android.tts) first, picks the best installed voice for the language, and offers a "Get Google voice" button if it is missing.
+- New logo (news page with sound waves): app icon, web favicon and page header.
+- Important stories carry an "Important" badge and a highlighted card.
+- Source policy added (SOURCES.md): Indian channels and newspapers for India, Karnataka local channels and newspapers for Karnataka.
+- The open page refreshes itself if a newer file for the same day is published.
+
 ## 2.0 - 2026-11-06
 - Day-wise archive: one JSON file per day, `data/index.json` lists dates, calendar to pick any day, previous/next day, swipe, deep links (`#2026-11-06/in-3`).
 - Briefings are written only on days the app is opened and a briefing is requested. No automatic daily run.

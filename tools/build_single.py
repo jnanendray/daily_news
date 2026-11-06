@@ -10,6 +10,9 @@ emb = json.dumps({"index": idx, "days": days}, ensure_ascii=False).replace("</",
 html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", html)
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + css + "\n</style>")
 html = html.replace('<script src="app.js"></script>', "<script>window.__EMBED=" + emb + ";</script>\n<script>\n" + js + "\n</script>")
+import base64
+logo = "data:image/svg+xml;base64," + base64.b64encode(rd("logo.svg").encode()).decode()
+html = html.replace('href="logo.svg"', 'href="' + logo + '"').replace('src="logo.svg"', 'src="' + logo + '"')
 out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(root, "single.html")
 open(out, "w", encoding="utf-8").write(html)
 print(out, len(html))

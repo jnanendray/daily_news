@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
@@ -25,7 +26,9 @@ public class MainActivity extends Activity {
     private WebView web;
     private String liveHost = "";
     private boolean usingBackup = false;
+    private static final String GOOGLE_TTS = "com.google.android.tts";
     private TextToSpeech tts;
+    private boolean usingGoogle = false;
     private boolean ttsReady = false;
     private final ArrayList<Runnable> waiting = new ArrayList<>();
 
@@ -50,7 +53,7 @@ public class MainActivity extends Activity {
         s.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         s.setCacheMode(WebSettings.LOAD_DEFAULT);
         web.addJavascriptInterface(new Bridge(), "NewsApp");
-        initTts();
+        initTts(true);
         web.setWebViewClient(new WebViewClient() {
             @Override public WebResourceResponse shouldInterceptRequest(WebView v, WebResourceRequest r) {
                 return loader.shouldInterceptRequest(r.getUrl());   // null for the live site = normal loading
@@ -78,9 +81,16 @@ public class MainActivity extends Activity {
     }
 
     /* ---------- text to speech (device voice, no permission needed) ---------- */
-    private void initTts() {
-        tts = new TextToSpeech(getApplicationContext(), status -> {
+    /** Prefer Google's speech engine (clearest Kannada and Indian English); fall back to the phone's default. */
+    private void initTts(final boolean google) {
+        final TextToSpeech.OnInitListener l = status -> {
+            if (status != TextToSpeech.SUCCESS && google) {
+                if (tts != null) { tts.shutdown(); tts = null; }
+                initTts(false);
+                return;
+            }
             ttsReady = (status == TextToSpeech.SUCCESS);
+            usingGoogle = ttsReady && google;
             if (ttsReady) {
                 tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                     @Override public void onStart(String id) { }
@@ -90,7 +100,12 @@ public class MainActivity extends Activity {
             }
             for (Runnable r : new ArrayList<>(waiting)) runOnUiThread(r);
             waiting.clear();
-        });
+        };
+        try {
+            tts = google ? new TextToSpeech(getApplicationContext(), l, GOOGLE_TTS) : new TextToSpeech(getApplicationContext(), l);
+        } catch (Exception e) {
+            if (google) initTts(false);
+        }
     }
 
     private void notifyJs(final String ev, final String id) {
@@ -99,12 +114,29 @@ public class MainActivity extends Activity {
         });
     }
 
-    private int setLang(String lang) {
-        if ("kn".equals(lang)) return tts.setLanguage(new Locale("kn", "IN"));
-        int r = tts.setLanguage(new Locale("en", "IN"));
-        if (r < TextToSpeech.LANG_AVAILABLE) r = tts.setLanguage(Locale.UK);
-        if (r < TextToSpeech.LANG_AVAILABLE) r = tts.setLanguage(Locale.US);
-        return r;
+    private Locale setLang(String lang) {
+        Locale[] tries = "kn".equals(lang)
+            ? new Locale[]{ new Locale("kn", "IN") }
+            : new Locale[]{ new Locale("en", "IN"), Locale.UK, Locale.US };
+        for (Locale l : tries) {
+            if (tts.setLanguage(l) >= TextToSpeech.LANG_AVAILABLE) { pickBestVoice(l); return l; }
+        }
+        return null;
+    }
+
+    /** Choose the highest-quality installed voice for the language (country match first). */
+    private void pickBestVoice(Locale loc) {
+        try {
+            Voice best = null; int bestScore = -1;
+            for (Voice v : tts.getVoices()) {
+                Locale vl = v.getLocale();
+                if (vl == null || !vl.getLanguage().equals(loc.getLanguage())) continue;
+                if (v.getFeatures() != null && v.getFeatures().contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) continue;
+                int score = v.getQuality() + (loc.getCountry().equals(vl.getCountry()) ? 1000 : 0);
+                if (score > bestScore) { bestScore = score; best = v; }
+            }
+            if (best != null) tts.setVoice(best);
+        } catch (Exception ignored) { }
     }
 
     private class Bridge {
@@ -113,12 +145,20 @@ public class MainActivity extends Activity {
             Locale l = "kn".equals(lang) ? new Locale("kn", "IN") : new Locale("en", "IN");
             return tts.isLanguageAvailable(l) >= TextToSpeech.LANG_AVAILABLE ? "ok" : "missing";
         }
+        @JavascriptInterface public String engine() { return !ttsReady ? "wait" : (usingGoogle ? "google" : "other"); }
+        @JavascriptInterface public void installGoogle() {
+            runOnUiThread(() -> {
+                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + GOOGLE_TTS))); }
+                catch (ActivityNotFoundException e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + GOOGLE_TTS)));
+                }
+            });
+        }
         @JavascriptInterface public void speak(final String text, final String lang, final float rate, final String id) {
             if (text == null || text.length() > 2000 || id == null) return;
             Runnable job = () -> {
                 if (!ttsReady) { notifyJs("novoice", id); return; }
-                int r = setLang(lang);
-                if (r < TextToSpeech.LANG_AVAILABLE) { notifyJs("novoice", id); return; }
+                if (setLang(lang) == null) { notifyJs("novoice", id); return; }
                 tts.setSpeechRate(Math.max(0.5f, Math.min(2.0f, rate)));
                 tts.setPitch(1.0f);
                 tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, id);
@@ -128,7 +168,11 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void stop() { if (tts != null) tts.stop(); }
         @JavascriptInterface public void installVoices() {
             runOnUiThread(() -> {
-                try { startActivity(new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA)); }
+                try {
+                    Intent in = new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                    if (usingGoogle) in.setPackage(GOOGLE_TTS);
+                    startActivity(in);
+                }
                 catch (ActivityNotFoundException e1) {
                     try { startActivity(new Intent("com.android.settings.TTS_SETTINGS")); }
                     catch (ActivityNotFoundException e2) {

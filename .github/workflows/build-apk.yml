@@ -23,7 +23,7 @@ jobs:
       - name: Bundle the current site as the offline copy
         run: |
           mkdir -p app/src/main/assets
-          cp ../index.html ../style.css ../app.js app/src/main/assets/
+          cp ../index.html ../style.css ../app.js ../logo.svg app/src/main/assets/
           cp -r ../data app/src/main/assets/data
           du -sh app/src/main/assets
       - name: Create a signing key for this build

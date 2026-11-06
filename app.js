@@ -31,7 +31,7 @@ function validate(d,date){
     a.forEach(function(x){
       if(!x||typeof x!=='object')return;
       var ic=ICONS[x.ic]?x.ic:'doc';var tn=/^t[1-5]$/.test(x.tn)?x.tn:'t1';
-      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
+      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),p:x.p===1?1:0,u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
     });
   });
   return out;
@@ -61,7 +61,7 @@ function loadDay(date){
   var key='dnb:d:'+date,cached=null;
   try{var c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.u<=TTL)cached=validate(c.d,date)}catch(e){}
   var net=getJSON('data/'+date+'.json').then(function(j){var d=validate(j,date);if(d){mem[date]=d;try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:d}))}catch(e){}}return d});
-  if(cached){mem[date]=cached;try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:cached}))}catch(e){}net.catch(function(){});return Promise.resolve(cached)}
+  if(cached){mem[date]=cached;try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:cached}))}catch(e){}net.then(function(d){if(d&&state.cur===date&&JSON.stringify(d)!==JSON.stringify(cached)&&!playing){state.data=d;fillList('list-in',d.in,'in');fillList('list-ka',d.ka,'ka')}}).catch(function(){});return Promise.resolve(cached)}
   return net;
 }
 function prefetch(date){
@@ -85,10 +85,13 @@ function card(sec,it,i){
   var be=el('button','b-en','Listen');be.type='button';be.dataset.act='en';
   var bk=el('button','b-kn','ಕೇಳಿ');bk.type='button';bk.dataset.act='kn';bk.lang='kn';
   var bs=el('button','b-share','Share');bs.type='button';bs.dataset.act='share';
-  row.appendChild(be);row.appendChild(bk);row.appendChild(bs);
+  var sp=el('span','spk');sp.setAttribute('aria-hidden','true');sp.appendChild(icon('speaker'));
+  var eq=el('span','eq');for(var q=0;q<4;q++)eq.appendChild(document.createElement('i'));sp.appendChild(eq);
+  row.appendChild(sp);row.appendChild(be);row.appendChild(bk);row.appendChild(bs);
   var a=el('a','src','Original report');
   a.href=it.u||('https://news.google.com/search?q='+encodeURIComponent(it.h)+'&hl=en-IN&gl=IN&ceid=IN:en');
   a.target='_blank';a.rel='noopener noreferrer';row.appendChild(a);
+  if(it.p){li.classList.add('hot');b.appendChild(el('span','badge','Important'))}
   b.appendChild(en);b.appendChild(kn);if(it.s)b.appendChild(el('p','why','Source: '+it.s));b.appendChild(row);
   li.appendChild(tile);li.appendChild(b);return li;
 }
@@ -209,11 +212,12 @@ function chunks(text){
   parts.forEach(function(p){if((cur+p).length>180&&cur){out.push(cur.trim());cur=p}else cur+=p});
   if(cur.trim())out.push(cur.trim());return out;
 }
-function note(msg,install){
+function note(msg,install,google){
   var n=$('voicenote');n.textContent='';
   if(!msg){n.hidden=true;return}
   n.appendChild(document.createTextNode(msg));
   if(install&&APP&&APP.installVoices){var b=el('button',null,'Install voice');b.type='button';b.addEventListener('click',function(){APP.installVoices()});n.appendChild(b)}
+  if(google&&APP&&APP.installGoogle){var g=el('button',null,'Get Google voice');g.type='button';g.addEventListener('click',function(){APP.installGoogle()});n.appendChild(g)}
   n.hidden=false;
 }
 var pend={},uid=0;
@@ -229,11 +233,13 @@ function stopSpeech(){
   cancelled=true;queue=[];playing=false;
   try{if(APP&&APP.stop)APP.stop();pend={};if(window.speechSynthesis)speechSynthesis.cancel()}catch(e){}
   var p=document.querySelector('.card.playing');if(p)p.classList.remove('playing');
+  $('speaking').hidden=true;
 }
 function runQueue(){
-  if(!queue.length){playing=false;var p=document.querySelector('.card.playing');if(p)p.classList.remove('playing');return}
+  if(!queue.length){playing=false;var p=document.querySelector('.card.playing');if(p)p.classList.remove('playing');$('speaking').hidden=true;return}
   var job=queue.shift();
   var p0=document.querySelector('.card.playing');if(p0)p0.classList.remove('playing');
+  $('speaking').hidden=false;$('speaking-t').textContent=job.lang==='kn'?'ಓದುತ್ತಿದೆ':'Speaking';
   if(job.node){job.node.classList.add('playing');try{job.node.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}}
   var v=APP?null:pick(job.lang);
   if(!APP&&job.lang==='kn'&&!v){note('No Kannada voice found on this device. Install Kannada text-to-speech in your phone or browser settings; the Kannada text is still shown.');runQueue();return}
@@ -270,7 +276,8 @@ function setMode(m){
 function checkVoices(n){
   if(!APP||!APP.voiceStatus)return;
   var st=APP.voiceStatus('kn');
-  if(st==='wait'&&n<8){setTimeout(function(){checkVoices(n+1)},500);return}
+  if((st==='wait'||(APP.engine&&APP.engine()==='wait'))&&n<8){setTimeout(function(){checkVoices(n+1)},500);return}
+  if(APP.engine&&APP.engine()==='other'){note('Google Speech Services is not installed, so the phone\'s default voice is used. Install it for the clearest English and Kannada voice.',false,true);return}
   if(st==='missing')note('Kannada voice data is not installed on this phone, so Kannada cannot be read aloud yet.',true);
 }
 function init(){
