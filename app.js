@@ -282,7 +282,7 @@ function checkVoices(n){
 }
 function init(){
   purge();
-  if(APP){$('getapp').hidden=true;checkVoices(0)}
+  if(APP){$('getapp').hidden=true;checkVoices(0);try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
   $('shareapp').addEventListener('click',function(){shareText('Daily News Briefing: top 10 India and Karnataka stories in English and Kannada, with a voice. Android app:',APK)});
   try{var m=localStorage.getItem('dnb:mode');if(m==='en'||m==='kn'||m==='both')setMode(m)}catch(e){}
   if(window.speechSynthesis){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}

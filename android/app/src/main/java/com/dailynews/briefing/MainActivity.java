@@ -1,6 +1,16 @@
 package com.dailynews.briefing;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.pm.PackageInfo;
+import android.os.Build;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.json.JSONObject;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
@@ -27,6 +37,10 @@ public class MainActivity extends Activity {
     private String liveHost = "";
     private boolean usingBackup = false;
     private static final String GOOGLE_TTS = "com.google.android.tts";
+    private static final String RELEASE_API = "https://api.github.com/repos/jnanendray/daily_news/releases/tags/apk-latest";
+    private static final String APK_URL = "https://github.com/jnanendray/daily_news/releases/download/apk-latest/DailyNewsBriefing.apk";
+    private long lastUpdateCheck = 0;
+    private boolean updateDialogOpen = false;
     private TextToSpeech tts;
     private boolean usingGoogle = false;
     private boolean ttsReady = false;
@@ -78,6 +92,62 @@ public class MainActivity extends Activity {
         });
         setContentView(web);
         if (configured) web.loadUrl(liveUrl); else { usingBackup = true; web.loadUrl(ASSET_URL); }
+        checkForUpdate();
+    }
+
+    @SuppressWarnings("deprecation")
+    private long installedCode() {
+        try {
+            PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
+            return Build.VERSION.SDK_INT >= 28 ? pi.getLongVersionCode() : pi.versionCode;
+        } catch (Exception e) { return Long.MAX_VALUE; }
+    }
+
+    private String installedName() {
+        try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; }
+        catch (Exception e) { return ""; }
+    }
+
+    /** Asks GitHub which app version is newest. Only the version number is read; the download address is fixed in this app. */
+    private void checkForUpdate() {
+        lastUpdateCheck = System.currentTimeMillis();
+        new Thread(() -> {
+            try {
+                HttpURLConnection c = (HttpURLConnection) new URL(RELEASE_API).openConnection();
+                c.setConnectTimeout(8000);
+                c.setReadTimeout(8000);
+                c.setRequestProperty("Accept", "application/vnd.github+json");
+                if (c.getResponseCode() != 200) return;
+                StringBuilder sb = new StringBuilder();
+                try (BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream()))) {
+                    String line;
+                    while ((line = r.readLine()) != null && sb.length() < 200000) sb.append(line);
+                }
+                Matcher m = Pattern.compile("versionCode:\\s*(\\d{1,9})").matcher(new JSONObject(sb.toString()).optString("body", ""));
+                if (!m.find()) return;
+                final long latest = Long.parseLong(m.group(1));
+                if (latest > installedCode()) runOnUiThread(this::showUpdateDialog);
+            } catch (Exception ignored) { }
+        }).start();
+    }
+
+    private void showUpdateDialog() {
+        if (updateDialogOpen || isFinishing()) return;
+        updateDialogOpen = true;
+        new AlertDialog.Builder(this)
+            .setTitle("Update available")
+            .setMessage("A newer version of Daily News Briefing is ready. Update now? Your browser will download it, then tap the downloaded file to install.")
+            .setPositiveButton("Update", (d, w) -> {
+                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(APK_URL))); } catch (Exception ignored) { }
+            })
+            .setNegativeButton("Later", null)
+            .setOnDismissListener(d -> updateDialogOpen = false)
+            .show();
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        if (System.currentTimeMillis() - lastUpdateCheck > 30 * 60 * 1000L) checkForUpdate();
     }
 
     /* ---------- text to speech (device voice, no permission needed) ---------- */
@@ -145,6 +215,7 @@ public class MainActivity extends Activity {
             Locale l = "kn".equals(lang) ? new Locale("kn", "IN") : new Locale("en", "IN");
             return tts.isLanguageAvailable(l) >= TextToSpeech.LANG_AVAILABLE ? "ok" : "missing";
         }
+        @JavascriptInterface public String appVersion() { return installedName(); }
         @JavascriptInterface public String engine() { return !ttsReady ? "wait" : (usingGoogle ? "google" : "other"); }
         @JavascriptInterface public void installGoogle() {
             runOnUiThread(() -> {

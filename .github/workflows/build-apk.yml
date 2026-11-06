@@ -26,16 +26,30 @@ jobs:
           cp ../index.html ../style.css ../app.js ../logo.svg app/src/main/assets/
           cp -r ../data app/src/main/assets/data
           du -sh app/src/main/assets
-      - name: Create a signing key for this build
+      - name: Set the version (always higher than the last build)
         run: |
-          PW=$(openssl rand -hex 16)
-          keytool -genkeypair -keystore "$RUNNER_TEMP/release.jks" -alias news -keyalg RSA -keysize 2048 -validity 10000 \
-            -storepass "$PW" -keypass "$PW" -dname "CN=Daily News Briefing"
-          echo "::add-mask::$PW"
-          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-          echo "KEYSTORE_PASSWORD=$PW" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$((GITHUB_RUN_NUMBER + 100))" >> "$GITHUB_ENV"
+          echo "VERSION_NAME=2.2.$GITHUB_RUN_NUMBER" >> "$GITHUB_ENV"
+      - name: Signing key (permanent key from repository secrets, so phones can update in place)
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PW: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KS_B64" ] && [ -n "$KS_PW" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/release.p12"
+            echo "KEY_KIND=permanent" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No signing secrets set. Using a temporary key, so phones must uninstall before installing."
+            KS_PW=$(openssl rand -hex 16)
+            keytool -genkeypair -keystore "$RUNNER_TEMP/release.p12" -storetype PKCS12 -alias news -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KS_PW" -keypass "$KS_PW" -dname "CN=Daily News Briefing"
+            echo "KEY_KIND=temporary" >> "$GITHUB_ENV"
+          fi
+          echo "::add-mask::$KS_PW"
+          echo "KEYSTORE_FILE=$RUNNER_TEMP/release.p12" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=$KS_PW" >> "$GITHUB_ENV"
           echo "KEY_ALIAS=news" >> "$GITHUB_ENV"
-          echo "KEY_PASSWORD=$PW" >> "$GITHUB_ENV"
+          echo "KEY_PASSWORD=$KS_PW" >> "$GITHUB_ENV"
       - name: Build
         run: gradle assembleRelease
       - name: Name the file
@@ -45,6 +59,9 @@ jobs:
         with:
           tag_name: apk-latest
           name: Daily News Briefing app
-          body: Latest Android app (version 2.0). Download DailyNewsBriefing.apk and install it. Updating needs an uninstall first, because each build uses a new signing key.
+          body: |
+            Latest Android app, version ${{ env.VERSION_NAME }}. Download DailyNewsBriefing.apk and install it.
+            Key: ${{ env.KEY_KIND }} (a permanent key lets the app update in place).
+            versionCode: ${{ env.VERSION_CODE }}
           files: ${{ runner.temp }}/DailyNewsBriefing.apk
           make_latest: true

@@ -6,14 +6,15 @@ android {
         applicationId 'com.dailynews.briefing'
         minSdk 24
         targetSdk 34
-        versionCode 3
-        versionName '2.1'
+        versionCode (System.getenv('VERSION_CODE') ?: '3').toInteger()
+        versionName System.getenv('VERSION_NAME') ?: '2.2'
     }
     signingConfigs {
         release {
             def ks = System.getenv('KEYSTORE_FILE')
             if (ks) {
                 storeFile file(ks)
+                storeType 'pkcs12'
                 storePassword System.getenv('KEYSTORE_PASSWORD')
                 keyAlias System.getenv('KEY_ALIAS')
                 keyPassword System.getenv('KEY_PASSWORD')
