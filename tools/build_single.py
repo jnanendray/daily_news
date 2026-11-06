@@ -7,7 +7,7 @@ html, css, js = rd("index.html"), rd("style.css"), rd("app.js")
 idx = json.loads(rd("data/index.json"))
 days = {os.path.basename(f)[:-5]: json.load(open(f, encoding="utf-8")) for f in sorted(glob.glob(os.path.join(root, "data", "20*.json")))}
 more = {os.path.basename(f)[:-5]: json.load(open(f, encoding="utf-8")) for f in sorted(glob.glob(os.path.join(root, "data", "more", "20*.json")))}
-emb = json.dumps({"index": idx, "days": days, "more": more, "calendar": (json.load(open(os.path.join(root,"data","calendar.json"),encoding="utf-8")) if os.path.exists(os.path.join(root,"data","calendar.json")) else None)}, ensure_ascii=False).replace("</", "<\\/")
+emb = json.dumps({"index": idx, "days": days, "more": more, "live": {os.path.basename(f)[:-5]: json.load(open(f, encoding="utf-8")) for f in sorted(glob.glob(os.path.join(root, "data", "live", "20*.json")))[-7:]}, "calendar": (json.load(open(os.path.join(root,"data","calendar.json"),encoding="utf-8")) if os.path.exists(os.path.join(root,"data","calendar.json")) else None)}, ensure_ascii=False).replace("</", "<\\/")
 html = re.sub(r'<meta http-equiv="Content-Security-Policy"[^>]*>\n?', "", html)
 html = html.replace('<link rel="stylesheet" href="style.css">', "<style>\n" + css + "\n</style>")
 html = html.replace('<script src="app.js"></script>', "<script>window.__EMBED=" + emb + ";</script>\n<script>\n" + js + "\n</script>")

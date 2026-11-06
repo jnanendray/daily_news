@@ -123,7 +123,7 @@ function loadMore(date){
 
 /* ---------- live headlines: collected when a day is opened (any day in the last 90 days) ---------- */
 var GD='https://api.gdeltproject.org/api/v2/doc/doc';
-var DOMS={'thehindu.com':'The Hindu','indianexpress.com':'Indian Express','ndtv.com':'NDTV','hindustantimes.com':'Hindustan Times','timesofindia.indiatimes.com':'Times of India','indiatoday.in':'India Today','business-standard.com':'Business Standard','ddnews.gov.in':'DD News','deccanherald.com':'Deccan Herald','bangaloremirror.indiatimes.com':'Bangalore Mirror','prajavani.net':'Prajavani','vijaykarnataka.com':'Vijay Karnataka','udayavani.com':'Udayavani','kannadaprabha.com':'Kannada Prabha','vijayavani.net':'Vijayavani','tv9kannada.com':'TV9 Kannada','publictv.in':'Public TV','kannada.asianetnews.com':'Asianet Suvarna News','samyuktakarnataka.com':'Samyukta Karnataka'};
+var DOMS={'thehindu.com':'The Hindu','indianexpress.com':'Indian Express','ndtv.com':'NDTV','hindustantimes.com':'Hindustan Times','timesofindia.indiatimes.com':'Times of India','indiatoday.in':'India Today','business-standard.com':'Business Standard','ddnews.gov.in':'DD News','deccanherald.com':'Deccan Herald','bangaloremirror.indiatimes.com':'Bangalore Mirror','prajavani.net':'Prajavani','vijaykarnataka.com':'Vijay Karnataka','udayavani.com':'Udayavani','kannadaprabha.com':'Kannada Prabha','vijayavani.net':'Vijayavani','tv9kannada.com':'TV9 Kannada','publictv.in':'Public TV','kannada.asianetnews.com':'Asianet Suvarna News','samyuktakarnataka.com':'Samyukta Karnataka','news18.com':'News18','indiatvnews.com':'India TV News','livemint.com':'Mint','economictimes.indiatimes.com':'Economic Times','newindianexpress.com':'New Indian Express','theprint.in':'ThePrint','kannada.news18.com':'News18 Kannada'};
 var KA_RE=/\b(karnataka|bengaluru|bangalore|mysuru|mysore|hubballi|hubli|dharwad|belagavi|belgaum|mangaluru|mangalore|kalaburagi|gulbarga|gadag|shivamogga|shimoga|ballari|bellary|udupi|tumakuru|hassan|mandya|bidar|vijayapura|siddaramaiah|shivakumar|bbmp|ksrtc|bmtc|namma metro|cauvery|vidhana soudha|kannada)\b/i;
 var WORLD_RE=/\b(u\.s\.|usa|america|american|trump|biden|china|chinese|pakistan|russia|russian|ukraine|israel|gaza|iran|united nations|un general|uk|britain|british|london|canada|australia|japan|bangladesh|nepal|sri lanka|maldives|afghanistan|taliban|europe|european|nato|g20|brics|saudi|uae|dubai|paris|france|germany|turkey|syria|lebanon|korea|taiwan|singapore|myanmar|africa|white house|pentagon|kremlin|beijing|washington|moscow)\b/i;
 var CAT_RE=[
@@ -232,11 +232,11 @@ function mergeLive(base,L){
 function liveDay(date,force){
   var key='dnb:d:live-'+date,ttl=date===todayStr()?30*60000:TTL;
   if(!force){try{var c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.u<=ttl){var v=validate(c.d,date);if(v)return Promise.resolve(v)}}catch(e){}}
-  return liveFetch(date).then(function(j){
-    var L=buildLive(j,date);if(!L)throw new Error('shape');
-    try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:L}))}catch(e){}
-    return L;
-  });
+  function keep(L){try{localStorage.setItem(key,JSON.stringify({u:Date.now(),d:L}))}catch(e){}return L}
+  function phone(){return liveFetch(date).then(function(j){var L=buildLive(j,date);if(!L)throw new Error('shape');return keep(L)})}
+  if(EMB){var e=EMB.live&&EMB.live[date];var L0=e?validate(e,date):null;return L0?Promise.resolve(L0):phone()}
+  /* first choice: the file the daily GitHub job collected; otherwise this device asks the news index itself */
+  return getJSON('data/live/'+date+'.json').then(function(j){var L=validate(j,date);if(!L)throw new Error('shape');return keep(L)}).catch(function(){return phone()});
 }
 function liveBar(kind,msg){
   var b=$('livebar');if(!kind){b.hidden=true;return}

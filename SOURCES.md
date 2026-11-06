@@ -25,3 +25,7 @@ Every briefing is gathered from Indian news organisations, and each story names 
 - Each story may add `c`: up to 3 of school, college, civil, tech, gov, farm, sci, med, sport, world, politics, business, environment, entertainment. Add `x:1` for stories that should appear only in their category and not in Top.
 - `wd` holds foreign-affairs stories from reputed outlets (The Hindu, Indian Express, NDTV, DD News and similar).
 - More details go in `data/more/<date>.json` as `{"in-0":{"d","kd","ds":[{"n","u"}]}}` keyed by section and index. Keep each `u` a real link seen in results. Never add search-engine links.
+
+## Live headlines (2.11)
+- data/live/<date>.json is written by .github/workflows/collect-news.yml using tools/collect.py. Rules for sections and categories are kept in tools/collect.py and in app.js (buildLive); change both together.
+- The written briefing (data/<date>.json) stays the richer source with summaries and Kannada.
