@@ -14,6 +14,12 @@ var APK='https://github.com/jnanendray/daily_news/releases/download/apk-latest/D
 var TTL=24*3600*1000;
 var HRE=/^(\d{4}-\d{2}-\d{2})(?:\/(in|ka)-([0-9]))?$/;
 
+var LOGK='dnb:log';
+function logEvent(kind,msg){
+  try{var a=JSON.parse(localStorage.getItem(LOGK)||'[]');a.push({t:new Date().toISOString(),k:kind,m:String(msg==null?'':msg).slice(0,200)});if(a.length>30)a=a.slice(-30);localStorage.setItem(LOGK,JSON.stringify(a))}catch(e){}
+}
+window.addEventListener('error',function(e){logEvent('js',(e.message||'error')+' @'+String(e.filename||'').split('/').pop()+':'+e.lineno)});
+window.addEventListener('unhandledrejection',function(e){logEvent('promise',e.reason&&e.reason.message?e.reason.message:e.reason)});
 function pad(n){return n<10?'0'+n:''+n}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
 function parse(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
@@ -28,6 +34,11 @@ function cleanSrcs(a){
   a.slice(0,8).forEach(function(s){if(s&&typeof s==='object'&&typeof s.n==='string'&&/^https:\/\//.test(s.u||''))o.push({n:str(s.n,60),u:str(s.u,500)})});
   return o;
 }
+function cleanKw(a){
+  var o=[];if(!Array.isArray(a))return o;
+  a.slice(0,3).forEach(function(k){if(k&&typeof k.w==='string'&&typeof k.m==='string'&&k.w&&k.m)o.push({w:str(k.w,60),m:str(k.m,400),kw:str(k.kw,60),km:str(k.km,400)})});
+  return o;
+}
 function validate(d,date){
   if(!d||typeof d!=='object')return null;
   var out={date:date,in:[],ka:[]};
@@ -36,7 +47,7 @@ function validate(d,date){
     a.forEach(function(x){
       if(!x||typeof x!=='object')return;
       var ic=ICONS[x.ic]?x.ic:'doc';var tn=/^t[1-5]$/.test(x.tn)?x.tn:'t1';
-      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),p:x.p===1?1:0,d:str(x.d,2500),kd:str(x.kd,3500),ds:cleanSrcs(x.ds),u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
+      out[k].push({h:str(x.h,200),t:str(x.t,1200),kh:str(x.kh,300),k:str(x.k,1800),s:str(x.s,80),w:str(x.w,400),p:x.p===1?1:0,d:str(x.d,2500),kd:str(x.kd,3500),ds:cleanSrcs(x.ds),kw:cleanKw(x.kw),u:/^https:\/\//.test(x.u||'')?str(x.u,500):'',ic:ic,tn:tn});
     });
   });
   return out;
@@ -92,13 +103,32 @@ function sourceLine(it){
   });
   return p;
 }
+function kwPara(text,kws,field){
+  var p=el('p',null);var hits=[];
+  kws.forEach(function(k,idx){
+    var t=k[field];if(!t)return;
+    var pos=text.toLowerCase().indexOf(t.toLowerCase());
+    if(pos<0)return;
+    for(var q=0;q<hits.length;q++){if(pos<hits[q].e&&pos+t.length>hits[q].s)return}
+    hits.push({s:pos,e:pos+t.length,idx:idx});
+  });
+  hits.sort(function(a,b){return a.s-b.s});
+  var at=0;
+  hits.forEach(function(h){
+    if(h.s>at)p.appendChild(document.createTextNode(text.slice(at,h.s)));
+    var b=el('button','kwb',text.slice(h.s,h.e));b.type='button';b.dataset.k=h.idx;
+    b.setAttribute('aria-label','Meaning of '+text.slice(h.s,h.e));p.appendChild(b);at=h.e;
+  });
+  if(at<text.length)p.appendChild(document.createTextNode(text.slice(at)));
+  return p;
+}
 function card(sec,it,i){
   var li=el('li','card fade');li.dataset.sec=sec;li.dataset.i=i;li.id='a-'+sec+'-'+i;
   var tile=el('div','tile '+it.tn);tile.appendChild(icon(it.ic));
   var b=el('div','body');
-  var en=el('div','en');en.appendChild(el('h3',null,it.h));en.appendChild(el('p',null,it.t));
+  var en=el('div','en');en.appendChild(el('h3',null,it.h));en.appendChild(kwPara(it.t,it.kw,'w'));
   if(it.w&&it.w.length>14)en.appendChild(el('p','why','Why it matters: '+it.w));
-  var kn=el('div','kn');kn.lang='kn';kn.appendChild(el('h4',null,it.kh));kn.appendChild(el('p',null,it.k));
+  var kn=el('div','kn');kn.lang='kn';kn.appendChild(el('h4',null,it.kh));kn.appendChild(kwPara(it.k,it.kw,'kw'));
   var row=el('div','row');
   var be=el('button','b-en','Listen');be.type='button';be.dataset.act='en';
   var bk=el('button','b-kn','ಕೇಳಿ');bk.type='button';bk.dataset.act='kn';bk.lang='kn';
@@ -184,6 +214,7 @@ function go(date,noHash,focus){
   }).catch(function(){
     if(my!==token)return;
     ['list-in','list-ka'].forEach(function(id){$(id).textContent=''});
+    logEvent('load','day '+date+' failed');
     var li=el('li','empty','Could not load this day. Check your connection and try again.');$('list-in').appendChild(li);
   });
 }
@@ -290,7 +321,8 @@ function runQueue(){
     if(!parts.length){runQueue();return}
     speakChunk(parts.shift(),job.lang,parseFloat($('rate').value)||0.92,v,function(ev){
       if(cancelled)return;
-      if(ev==='novoice'){if(job.lang==='kn')knHelp();else note('No English voice was found.',['Open Settings, search for Text-to-speech, and choose an English voice.']);runQueue();return}
+      if(ev==='error')logEvent('tts','speech error '+job.lang);
+      if(ev==='novoice'){logEvent('voice','no '+job.lang+' voice');if(job.lang==='kn')knHelp();else note('No English voice was found.',['Open Settings, search for Text-to-speech, and choose an English voice.']);runQueue();return}
       next();
     });
   })();
@@ -313,6 +345,87 @@ function setMode(m){
   state.mode=m;document.body.dataset.mode=m;
   [['l-en','en'],['l-kn','kn'],['l-both','both']].forEach(function(p){$(p[0]).setAttribute('aria-pressed',String(p[1]===m))});
   try{localStorage.setItem('dnb:mode',m)}catch(e){}
+}
+var lastFocus=null;
+function openSheet(build){
+  var body=$('sheet-body');body.textContent='';build(body);
+  lastFocus=document.activeElement;$('sheet').hidden=false;
+  var card=document.querySelector('.sheet-card');if(card)card.scrollTop=0;
+  setTimeout(function(){try{$('sheet-x').focus()}catch(e){}},30);
+}
+function closeSheet(){$('sheet').hidden=true;try{if(lastFocus)lastFocus.focus()}catch(e){}}
+function openOuter(url){
+  if(!/^https:\/\//.test(url))return;
+  if(APP&&APP.openExternal){APP.openExternal(url);return}
+  window.open(url,'_blank','noopener,noreferrer');
+}
+function relatedStories(term,skipKey){
+  var dates=state.dates.slice(0,6),t=term.toLowerCase(),out=[];
+  return Promise.all(dates.map(function(d){return loadDay(d).catch(function(){return null})})).then(function(days){
+    days.forEach(function(day,di){
+      if(!day)return;
+      ['in','ka'].forEach(function(sec){day[sec].forEach(function(s,i){
+        var key=dates[di]+'/'+sec+'-'+i;
+        if(key===skipKey)return;
+        if((s.h+' '+s.t).toLowerCase().indexOf(t)>=0)out.push({d:dates[di],sec:sec,i:i,h:s.h});
+      })});
+    });
+    return out.slice(0,4);
+  });
+}
+function openKeyword(card,idx){
+  var it=state.data[card.dataset.sec][+card.dataset.i],k=it.kw[idx];if(!k)return;
+  var skip=state.cur+'/'+card.dataset.sec+'-'+card.dataset.i;
+  openSheet(function(b){
+    var h=el('h3',null,k.w);h.id='sheet-title';b.appendChild(h);
+    b.appendChild(el('p',null,k.m));
+    if(k.km){var kp=el('p','kn',k.km);kp.lang='kn';b.appendChild(kp)}
+    b.appendChild(el('h4',null,'Related recent news'));
+    var ul=el('ul');ul.id='kw-rel';ul.appendChild(el('li',null,'Looking through saved briefings...'));b.appendChild(ul);
+    var acts=el('div','acts');
+    var deep=el('button','primary','Deep search in browser');deep.type='button';
+    deep.addEventListener('click',function(){openOuter('https://www.google.com/search?q='+encodeURIComponent(k.w+' news India'))});
+    var cl=el('button',null,'Close');cl.type='button';cl.addEventListener('click',closeSheet);
+    acts.appendChild(deep);acts.appendChild(cl);b.appendChild(acts);
+    relatedStories(k.w,skip).then(function(list){
+      var u=$('kw-rel');if(!u)return;u.textContent='';
+      if(!list.length){u.appendChild(el('li',null,'No other saved story mentions this yet. Use Deep search for more.'));return}
+      list.forEach(function(r){
+        var li=el('li');var bt=el('button',null,r.h);bt.type='button';
+        var sm=el('small',null,fmt(r.d));bt.appendChild(sm);
+        bt.addEventListener('click',function(){closeSheet();go(r.d,false,r.sec+'-'+r.i)});
+        li.appendChild(bt);u.appendChild(li);
+      });
+    });
+  });
+}
+function diagText(extra){
+  var lines=['App: '+(APP&&APP.appVersion?('Android app '+APP.appVersion()):'web page'),'Device: '+(APP&&APP.deviceInfo?APP.deviceInfo():(navigator.userAgent||'').slice(0,110)),'Day: '+(state.cur||'-')+', mode: '+state.mode];
+  try{var lg=JSON.parse(localStorage.getItem(LOGK)||'[]').slice(-12);if(lg.length){lines.push('Recent log:');lg.forEach(function(e){lines.push(e.t.slice(5,19)+' '+e.k+' '+e.m)})}}catch(e){}
+  if(extra)lines.push('Last crash: '+extra);
+  return lines.join('\n');
+}
+function openReport(crash){
+  openSheet(function(b){
+    var h=el('h3',null,crash?'The app closed unexpectedly':'Report a problem or request');h.id='sheet-title';b.appendChild(h);
+    b.appendChild(el('p',null,crash?'Sorry about that. You can send a report so it can be fixed. Nothing is sent unless you choose.':'Tell us what went wrong, or what you would like the app to do. Nothing is sent unless you choose below.'));
+    var ta=document.createElement('textarea');ta.maxLength=600;ta.setAttribute('aria-label','What happened or what do you need');ta.placeholder='What happened, or what would you like?';b.appendChild(ta);
+    var lb=el('label');var cb=document.createElement('input');cb.type='checkbox';cb.checked=true;lb.appendChild(cb);lb.appendChild(document.createTextNode(' Include the technical log (no personal details)'));b.appendChild(lb);
+    var pre=el('pre',null,diagText(crash||''));b.appendChild(pre);
+    cb.addEventListener('change',function(){pre.hidden=!cb.checked});
+    function body(){return (ta.value.trim()||'(no message)')+(cb.checked?'\n\n'+diagText(crash||''):'')}
+    var acts=el('div','acts');
+    var sh=el('button','primary','Share report');sh.type='button';sh.addEventListener('click',function(){shareText('Daily News Briefing report',body().slice(0,1500))});
+    var gh=el('button',null,'Open on GitHub');gh.type='button';gh.addEventListener('click',function(){
+      var u='https://github.com/jnanendray/daily_news/issues/new?title='+encodeURIComponent((crash?'Crash report':'Feedback')+' - Daily News Briefing')+'&body='+encodeURIComponent(body().slice(0,1500));
+      if(APP){location.href=u}else window.open(u,'_blank','noopener,noreferrer');
+    });
+    var cl=el('button',null,'Close');cl.type='button';cl.addEventListener('click',closeSheet);
+    acts.appendChild(sh);acts.appendChild(gh);acts.appendChild(cl);b.appendChild(acts);
+  });
+}
+function checkCrash(){
+  try{var c=APP&&APP.lastCrash&&APP.lastCrash();if(c){APP.clearCrash&&APP.clearCrash();logEvent('crash',c.slice(0,160));openReport(c.slice(0,300))}}catch(e){}
 }
 function checkVoices(n){
   if(!APP||!APP.voiceStatus)return;
@@ -342,6 +455,9 @@ function setupReminder(){
 }
 function init(){
   purge();
+  $('sheet-x').addEventListener('click',closeSheet);$('sheet-bg').addEventListener('click',closeSheet);
+  $('reportbtn').addEventListener('click',function(){openReport('')});
+  setTimeout(checkCrash,1200);
   if(APP){$('getapp').hidden=true;checkVoices(0);setupReminder();document.addEventListener('visibilitychange',function(){if(!document.hidden){try{APP.refreshVoices&&APP.refreshVoices()}catch(e){}setTimeout(function(){checkVoices(0)},1500)}});try{var av=APP.appVersion&&APP.appVersion();if(av){$('appver').textContent='App version '+av+'. The app checks for updates when it opens.';$('appver').hidden=false}}catch(e){}}
   $('shareapp').addEventListener('click',function(){shareText('Daily News Briefing: top 10 India and Karnataka stories in English and Kannada, with a voice. Android app:',APK)});
   try{var m=localStorage.getItem('dnb:mode');if(m==='en'||m==='kn'||m==='both')setMode(m)}catch(e){}
@@ -358,7 +474,7 @@ function init(){
   $('cal-next').addEventListener('click',function(){state.vm++;if(state.vm>11){state.vm=0;state.vy++}drawCal()});
   $('cal-grid').addEventListener('click',function(e){var b=e.target.closest('button');if(b&&b.classList.contains('has'))go(b.dataset.d)});
   document.addEventListener('click',function(e){if(!$('cal').hidden&&!e.target.closest('#daybar'))closeCal()});
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeCal();$('datebtn').focus()}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){if(!$('sheet').hidden){closeSheet();return}closeCal();$('datebtn').focus()}});
   $('main').addEventListener('click',function(e){
     var pa=e.target.closest('[data-play]');
     if(pa){
@@ -366,6 +482,8 @@ function init(){
       arr.forEach(function(it,i){jobs=jobs.concat(jobsFor(it,nodes[i],state.mode!=='kn',state.mode!=='en'))});
       start(jobs);return;
     }
+    var kb=e.target.closest('.kwb');
+    if(kb){openKeyword(kb.closest('.card'),+kb.dataset.k);return}
     var tb=e.target.closest('.tabs button');
     if(tb){
       var cc=tb.closest('.card');cc.dataset.tab=tb.dataset.tab;
@@ -392,6 +510,7 @@ function init(){
     var h=parseHash();
     if(h)go(h.d,true,h.f);else go(state.latest,true);
   }).catch(function(){
+    logEvent('offline','briefing list failed');
     $('dateline').textContent='Offline';
     $('list-in').appendChild(el('li','empty','Could not load the briefing list. Check your connection.'));
   });

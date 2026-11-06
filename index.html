@@ -110,8 +110,17 @@
     </section>
   </main>
 
+  <div class="sheet" id="sheet" hidden>
+    <div class="sheet-bg" id="sheet-bg"></div>
+    <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">
+      <button type="button" class="sheet-x" id="sheet-x" aria-label="Close">&#215;</button>
+      <div id="sheet-body"></div>
+    </div>
+  </div>
+
   <footer>
     <p>Pick any past day from the calendar, or swipe left and right on a phone. Every story has a Share button and a link to find the original report.</p>
+    <p><button type="button" class="chip" id="reportbtn">Report a problem or request</button></p>
     <details class="legal">
       <summary>About, copyright and privacy</summary>
       <p><strong>Copyright.</strong> &copy; 2026 jnanendray. All rights reserved for this app's own code, design and icons. News belongs to the publishers named on each story. Their names and trademarks belong to them and are used only to credit the source.</p>
@@ -119,6 +128,7 @@
       <p><strong>Fonts.</strong> Inter and Noto Sans Kannada, both under the SIL Open Font License 1.1 (see the fonts folder).</p>
       <p><strong>Content.</strong> Each story is a short summary written in original words by an AI from public news reports. No photographs, full articles or paid content are copied. Each story links to where you can find the original report. Kannada text is machine-written, so check the original for exact wording. Summaries can contain mistakes and are not legal, medical or financial advice.</p>
       <p><strong>Privacy.</strong> No accounts, ads, analytics or tracking. Your language choice and recently viewed briefings are stored only on your device, and a briefing you have not opened for 24 hours is deleted from it. Speech comes from your device's own text-to-speech. The Android app can show a daily reminder at a time you choose; it needs the notification permission, which you can refuse or turn off at any time. Links open in the in-app reader and those sites have their own policies.</p>
+      <p><strong>Problem reports.</strong> Nothing is sent automatically. If something goes wrong, the app keeps a short local log (error messages, app version, phone model, no personal details). It is shared only if you choose Report a problem and then tap Share or Open on GitHub. Reports help us fix faults and improve the app.</p>
       <p><strong>Removal requests.</strong> To report an error or ask for any item to be removed, open an issue at <a href="https://github.com/jnanendray/daily_news/issues" rel="noopener noreferrer">github.com/jnanendray/daily_news</a>. See CHANGELOG.md.</p>
       <p id="appver" hidden></p>
     </details>

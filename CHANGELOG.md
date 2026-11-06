@@ -1,5 +1,10 @@
 # Change log
 
+## 2.5 - 2026-11-06
+- Keyword highlights (a few per day, dotted underline): tap one for a floating window with its meaning in English and Kannada, related recent stories from the saved days, and a Deep search button that opens the phone's browser.
+- Problem reports: Report a problem or request (footer), a local log of failures (errors, voice problems, load failures), and a prompt to send a report after the app closes unexpectedly. Reports are shared only when the user chooses, by the share sheet or a prefilled GitHub issue.
+- Noto Sans Kannada is the Kannada font (full weight range 100 to 900).
+
 ## 2.4 - 2026-11-06
 - More details tab on every story: a longer summary combined from other outlets (English and Kannada) with linked outlet names, and a link to find more reports. Filled in where other outlets' reports could be confirmed.
 - Source line (outlet name and link) at the end of every story. Karnataka stories only from Karnataka-based outlets.

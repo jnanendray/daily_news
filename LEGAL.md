@@ -15,3 +15,5 @@ This notice is not legal advice. It has not been reviewed by a lawyer.
 **Fonts.** Inter (c) The Inter Project Authors and Noto Sans Kannada (c) The Noto Project Authors, licensed under the SIL Open Font License 1.1. Licence texts are in the `fonts` folder.
 
 **Notifications.** The Android app can show a daily reminder only if you switch it on, and only after Android asks for your permission. No data is collected or sent.
+
+**Problem reports.** The app keeps a short local log of failures (error messages, app version, phone model, no personal details). Nothing is sent automatically. It is shared only if the user taps Share report or Open on GitHub, and the user can edit the message first.

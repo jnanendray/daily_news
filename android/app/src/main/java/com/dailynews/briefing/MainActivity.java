@@ -52,6 +52,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        final Thread.UncaughtExceptionHandler prev = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+            try {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                e.printStackTrace(new java.io.PrintWriter(sw));
+                String s = sw.toString();
+                getSharedPreferences("diag", MODE_PRIVATE).edit().putString("crash", (new java.util.Date()).toString() + " " + (s.length() > 1200 ? s.substring(0, 1200) : s)).commit();
+            } catch (Exception ignored) { }
+            if (prev != null) prev.uncaughtException(t, e);
+        });
         final String liveUrl = getString(R.string.live_url);
         final Uri live = Uri.parse(liveUrl);
         liveHost = live.getHost() == null ? "" : live.getHost();
@@ -240,6 +250,13 @@ public class MainActivity extends Activity {
             if (!ttsReady) return "wait";
             Locale l = "kn".equals(lang) ? new Locale("kn", "IN") : new Locale("en", "IN");
             return tts.isLanguageAvailable(l) >= TextToSpeech.LANG_AVAILABLE ? "ok" : "missing";
+        }
+        @JavascriptInterface public String deviceInfo() { return "Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + "), " + Build.MANUFACTURER + " " + Build.MODEL; }
+        @JavascriptInterface public String lastCrash() { return getSharedPreferences("diag", MODE_PRIVATE).getString("crash", ""); }
+        @JavascriptInterface public void clearCrash() { getSharedPreferences("diag", MODE_PRIVATE).edit().remove("crash").apply(); }
+        @JavascriptInterface public void openExternal(final String url) {
+            if (url == null || !url.startsWith("https://") || url.length() > 1000) return;
+            runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignored) { } });
         }
         @JavascriptInterface public String getReminder() { return Reminder.describe(MainActivity.this); }
         @JavascriptInterface public boolean notifAllowed() { return MainActivity.this.notifAllowed(); }

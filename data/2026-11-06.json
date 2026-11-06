@@ -33,6 +33,14 @@
      "n": "Bar & Bench",
      "u": "https://www.barandbench.com/news/caqm-in-no-hurry-to-identify-causes-of-delhis-worsening-air-pollution-supreme-court"
     }
+   ],
+   "kw": [
+    {
+     "w": "Delhi-NCR",
+     "m": "The National Capital Region: Delhi and the nearby cities of Haryana, Uttar Pradesh and Rajasthan that share its air and planning.",
+     "km": "ದೆಹಲಿ ಮತ್ತು ಹರಿಯಾಣ, ಉತ್ತರ ಪ್ರದೇಶ, ರಾಜಸ್ಥಾನದ ಸಮೀಪದ ನಗರಗಳನ್ನು ಒಳಗೊಂಡ ರಾಷ್ಟ್ರ ರಾಜಧಾನಿ ಪ್ರದೇಶ.",
+     "kw": "ದೆಹಲಿ-ಎನ್‌ಸಿಆರ್"
+    }
    ]
   },
   {
@@ -64,6 +72,14 @@
      "n": "Moneylife",
      "u": "https://www.moneylife.in/article/sebi-proposes-scrapping-125-percentage-ltcg-tax-for-foreign-investors-ahead-of-budget-2027/82091.html"
     }
+   ],
+   "kw": [
+    {
+     "w": "Budget",
+     "m": "The government's yearly statement of expected income and spending, presented in Parliament. Tax changes are usually announced in it.",
+     "km": "ಸಂಸತ್ತಿನಲ್ಲಿ ಮಂಡಿಸುವ, ಸರ್ಕಾರದ ವಾರ್ಷಿಕ ಆದಾಯ ಮತ್ತು ವೆಚ್ಚದ ಲೆಕ್ಕ. ತೆರಿಗೆ ಬದಲಾವಣೆಗಳನ್ನು ಸಾಮಾನ್ಯವಾಗಿ ಇದರಲ್ಲಿ ಘೋಷಿಸಲಾಗುತ್ತದೆ.",
+     "kw": "ಬಜೆಟ್"
+    }
    ]
   },
   {
@@ -74,7 +90,15 @@
    "s": "The Hindu",
    "w": "Latest",
    "ic": "building",
-   "tn": "t5"
+   "tn": "t5",
+   "kw": [
+    {
+     "w": "Tata Trusts",
+     "m": "Charitable trusts that hold a large share of Tata Sons, the parent company of the Tata group.",
+     "km": "ಟಾಟಾ ಸಮೂಹದ ಮಾತೃ ಕಂಪನಿಯಾದ ಟಾಟಾ ಸನ್ಸ್‌ನ ದೊಡ್ಡ ಪಾಲು ಹೊಂದಿರುವ ದತ್ತಿ ಟ್ರಸ್ಟ್‌ಗಳು.",
+     "kw": "ಟಾಟಾ ಟ್ರಸ್ಟ್"
+    }
+   ]
   },
   {
    "h": "Videocon promoter Venugopal Dhoot declared bankrupt",
@@ -84,7 +108,15 @@
    "s": "The Indian Express",
    "w": "Latest",
    "ic": "scales",
-   "tn": "t3"
+   "tn": "t3",
+   "kw": [
+    {
+     "w": "NCLT",
+     "m": "The National Company Law Tribunal, which hears company disputes and insolvency cases.",
+     "km": "ಕಂಪನಿ ವಿವಾದಗಳು ಮತ್ತು ದಿವಾಳಿ ಪ್ರಕರಣಗಳನ್ನು ವಿಚಾರಿಸುವ ರಾಷ್ಟ್ರೀಯ ಕಂಪನಿ ಕಾನೂನು ನ್ಯಾಯಮಂಡಳಿ.",
+     "kw": "ಎನ್‌ಸಿಎಲ್‌ಟಿ"
+    }
+   ]
   },
   {
    "h": "Sugarcane farmers' protest strands thousands on NH-48 in Maharashtra",
@@ -125,7 +157,21 @@
    "w": "Latest",
    "ic": "chart",
    "tn": "t4",
-   "p": 1
+   "p": 1,
+   "kw": [
+    {
+     "w": "Sensex",
+     "m": "The index of 30 large companies on the Bombay Stock Exchange. Its rise or fall shows how the market is doing.",
+     "km": "ಬಾಂಬೆ ಷೇರು ವಿನಿಮಯ ಕೇಂದ್ರದ 30 ದೊಡ್ಡ ಕಂಪನಿಗಳ ಸೂಚ್ಯಂಕ. ಇದರ ಏರಿಳಿತ ಮಾರುಕಟ್ಟೆಯ ಸ್ಥಿತಿಯನ್ನು ತೋರಿಸುತ್ತದೆ.",
+     "kw": "ಸೆನ್ಸೆಕ್ಸ್"
+    },
+    {
+     "w": "Nifty",
+     "m": "The index of 50 large companies on the National Stock Exchange.",
+     "km": "ರಾಷ್ಟ್ರೀಯ ಷೇರು ವಿನಿಮಯ ಕೇಂದ್ರದ 50 ದೊಡ್ಡ ಕಂಪನಿಗಳ ಸೂಚ್ಯಂಕ.",
+     "kw": "ನಿಫ್ಟಿ"
+    }
+   ]
   },
   {
    "h": "Bengaluru airport moves to mixed-mode runway use from 11 November",
@@ -135,7 +181,14 @@
    "s": "Deccan Herald",
    "w": "Latest",
    "ic": "building",
-   "tn": "t1"
+   "tn": "t1",
+   "kw": [
+    {
+     "w": "mixed-mode runway operations",
+     "m": "Using a runway for both landings and take-offs, instead of one only for each, so more flights can be handled.",
+     "km": "ಒಂದೇ ರನ್‌ವೇಯನ್ನು ಇಳಿಯುವಿಕೆ ಮತ್ತು ಹಾರಾಟ ಎರಡಕ್ಕೂ ಬಳಸುವುದು; ಇದರಿಂದ ಹೆಚ್ಚು ವಿಮಾನಗಳನ್ನು ನಿಭಾಯಿಸಬಹುದು."
+    }
+   ]
   },
   {
    "h": "Two Indian restaurants make the World's 50 Best list for the first time",
@@ -158,7 +211,15 @@
    "w": "Latest",
    "ic": "gavel",
    "tn": "t1",
-   "p": 1
+   "p": 1,
+   "kw": [
+    {
+     "w": "defamation case",
+     "m": "A case claiming that someone's statements have harmed another person's or party's reputation.",
+     "km": "ಯಾರೊಬ್ಬರ ಹೇಳಿಕೆಗಳು ಇನ್ನೊಬ್ಬರ ಅಥವಾ ಪಕ್ಷದ ಗೌರವಕ್ಕೆ ಧಕ್ಕೆ ತಂದಿವೆ ಎಂಬ ಪ್ರಕರಣ.",
+     "kw": "ಮಾನನಷ್ಟ"
+    }
+   ]
   },
   {
    "h": "Karnataka seizes 22 lakh kg of rice and 204 vehicles in hoarding crackdown",
@@ -208,6 +269,14 @@
      "n": "Deccan Herald",
      "u": "https://www.deccanherald.com/india/karnataka/centre-wont-thrust-bedti-river-linking-on-karnataka-says-vishweshwar-hegde-kageri-3860052"
     }
+   ],
+   "kw": [
+    {
+     "w": "Aghanashini",
+     "m": "A river in Uttara Kannada district, in Karnataka's coastal region.",
+     "km": "ಕರ್ನಾಟಕದ ಕರಾವಳಿ ಭಾಗದ ಉತ್ತರ ಕನ್ನಡ ಜಿಲ್ಲೆಯಲ್ಲಿರುವ ನದಿ.",
+     "kw": "ಅಘನಾಶಿನಿ"
+    }
    ]
   },
   {
@@ -218,7 +287,15 @@
    "s": "The News Minute",
    "w": "4 Nov",
    "ic": "mic",
-   "tn": "t3"
+   "tn": "t3",
+   "kw": [
+    {
+     "w": "Shakuni",
+     "m": "A scheming character in the Mahabharata. Calling someone Shakuni means calling them cunning and manipulative.",
+     "km": "ಮಹಾಭಾರತದ ಕುತಂತ್ರಿ ಪಾತ್ರ. ಯಾರನ್ನಾದರೂ ಶಕುನಿ ಎಂದರೆ ಕುಟಿಲ, ಕುತಂತ್ರಿ ಎಂದು ಹೇಳಿದಂತೆ.",
+     "kw": "ಶಕುನಿ"
+    }
+   ]
   },
   {
    "h": "Profile: Bengaluru's drag performers and the community they are building",
