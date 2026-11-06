@@ -129,10 +129,39 @@ def query_url(date):
 UA = {'User-Agent': 'Mozilla/5.0 (compatible; daily-news-briefing/1.0; +https://github.com/jnanendray/daily_news)'}
 
 
+BROWSER_UA = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+              'Accept': 'application/rss+xml, application/xml, text/xml, text/html;q=0.8'}
+
+
 def get_bytes(url, limit=3_000_000, timeout=30):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read(limit)
+    for hdr in (UA, BROWSER_UA):                    # some sites refuse anything that is not a browser
+        try:
+            req = urllib.request.Request(url, headers=hdr)
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read(limit)
+        except urllib.error.HTTPError as e:
+            if e.code not in (403, 406) or hdr is BROWSER_UA:
+                raise
+    raise RuntimeError('unreachable')
+
+
+def discover(url):
+    """Finds feed addresses a site advertises on its home page (rel=alternate rss/atom)."""
+    root = '/'.join(url.split('/')[:3]) + '/'
+    try:
+        page = get_bytes(root, 600_000, 20).decode('utf-8', 'replace')
+    except Exception:
+        return []
+    found = []
+    for m in re.finditer(r'<link[^>]+>', page, re.I):
+        tag = m.group(0)
+        if re.search(r'type=["\']application/(rss|atom)\+xml', tag, re.I):
+            h = re.search(r'href=["\']([^"\']+)', tag, re.I)
+            if h:
+                u = urllib.parse.urljoin(root, html.unescape(h.group(1)))
+                if u.startswith('https://') and u not in found:
+                    found.append(u)
+    return found[:4]
 
 
 def fetch_gdelt(url):
@@ -144,18 +173,28 @@ def text_of(e):
     return re.sub(r'\s+', ' ', html.unescape(''.join(e.itertext()))).strip() if e is not None else ''
 
 
-def read_feed(url, name, sec, cat, lang, today):
+def _heal(url, name, sec, cat, lang, today, again, why):
+    if not again or url.startswith('file://'):
+        return [], why
+    for u in discover(url):
+        items, note = read_feed(u, name, sec, cat, lang, today, False)
+        if items:
+            return items, '%s; healed via %s' % (why, u)
+    return [], why + '; no feed advertised'
+
+
+def read_feed(url, name, sec, cat, lang, today, _again=True):
     """Returns (items, note). Items are {title,url,name,kn,sec,cat,date}."""
     try:
         raw = open(url[7:], "rb").read() if url.startswith("file://") else get_bytes(url)
     except Exception as e:
-        return [], 'unreachable (%s)' % str(e)[:60]
+        return _heal(url, name, sec, cat, lang, today, _again, 'unreachable (%s)' % str(e)[:40])
     if b'<!ENTITY' in raw[:4000] or b'<!DOCTYPE' in raw[:200] and b'[' in raw[:600]:
         return [], 'skipped (entity declarations)'
     try:
         root = ET.fromstring(raw)
     except Exception:
-        return [], 'not valid XML'
+        return _heal(url, name, sec, cat, lang, today, _again, 'not valid XML')
     out = []
     for it in root.iter():
         tag = it.tag.split('}')[-1]
