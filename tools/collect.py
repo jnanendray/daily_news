@@ -54,6 +54,7 @@ FEEDS = [
  ('https://publictv.in/feed', 'Public TV', 'ka', '', 'kn'),
  ('https://kannada.asianetnews.com/rss', 'Asianet Suvarna News', 'ka', '', 'kn'),
 ]
+KA_OUTLETS = {'Deccan Herald', 'Bangalore Mirror'}
 KA_RE = re.compile(r'\b(karnataka|bengaluru|bangalore|mysuru|mysore|hubballi|hubli|dharwad|belagavi|belgaum|mangaluru|mangalore|kalaburagi|gulbarga|gadag|shivamogga|shimoga|ballari|bellary|udupi|tumakuru|hassan|mandya|bidar|vijayapura|siddaramaiah|shivakumar|bbmp|ksrtc|bmtc|namma metro|cauvery|vidhana soudha|kannada)\b', re.I)
 WORLD_RE = re.compile(r'\b(u\.s\.|usa|america|american|trump|biden|china|chinese|pakistan|russia|russian|ukraine|israel|gaza|iran|united nations|un general|uk|britain|british|london|canada|australia|japan|bangladesh|nepal|sri lanka|maldives|afghanistan|taliban|europe|european|nato|g20|brics|saudi|uae|dubai|paris|france|germany|turkey|syria|lebanon|korea|taiwan|singapore|myanmar|africa|white house|pentagon|kremlin|beijing|washington|moscow)\b', re.I)
 CAT_RE = [
@@ -356,6 +357,8 @@ def main():
             if it['url'] in seen:
                 continue
             seen.add(it['url'])
+            if it.get('sec') == 'ka' and not it.get('kn') and it.get('name') not in KA_OUTLETS:
+                it = dict(it, sec='')
             merged.append({k: it.get(k, '') for k in ('title', 'url', 'name', 'kn', 'sec', 'cat', 'date')})
         if not merged:
             print(d, 'nothing collected')
