@@ -67,3 +67,6 @@
 
 ## 2.11
 - Daily headline collection on GitHub (reads the outlets' own public RSS feeds first, since GDELT refuses cloud servers with HTTP 429; GDELT is a one-attempt bonus): the "Collect news" workflow runs four times a day (05:50, 11:50, 17:50 and 23:20 India time) and can be started by hand. tools/collect.py asks the GDELT index for Indian and Karnataka outlets, groups the same story across outlets, sorts into India, Karnataka, World and categories, and saves data/live/YYYY-MM-DD.json (90 days kept). The app uses that file when present and only asks the index from the device when it is missing. More outlets added (News18, India TV, Mint, Economic Times, New Indian Express, ThePrint, News18 Kannada).
+
+## 2.12
+- Settings shows average load time of the written briefing and the live headlines (last 20 loads, stored on the device only).

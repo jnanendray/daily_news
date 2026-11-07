@@ -230,6 +230,15 @@ function mergeLive(base,L){
   })});
   return out;
 }
+/* ---------- load timer (kept on this device only) ---------- */
+var TMK='dnb:timing',T0=0;
+function tmRead(){try{var a=JSON.parse(localStorage.getItem(TMK)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+function tmMark(date,kind,ok){
+  if(!T0)return;var ms=Math.round((window.performance&&performance.now?performance.now():Date.now())-T0);
+  if(!(ms>=0&&ms<600000))return;
+  try{var a=tmRead();a.push({d:date,k:kind,ms:ms,ok:ok?1:0,t:Date.now()});localStorage.setItem(TMK,JSON.stringify(a.slice(-20)))}catch(e){}
+}
+function tmNow(){T0=window.performance&&performance.now?performance.now():Date.now()}
 function liveDay(date,force){
   var key='dnb:d:live-'+date,ttl=date===todayStr()?30*60000:TTL;
   if(!force){try{var c=JSON.parse(localStorage.getItem(key)||'null');if(c&&Date.now()-c.u<=ttl){var v=validate(c.d,date);if(v)return Promise.resolve(v)}}catch(e){}}
@@ -246,6 +255,7 @@ function liveBar(kind,msg){
 }
 function startLive(date,my,force){
   if(!inWindow(date))return;
+  if(force)tmNow();
   liveBar('load','Collecting this day’s headlines from Indian news sites');
   var base=(state.dates.indexOf(date)>=0&&mem[date])?mem[date]:{date:date,in:[],ka:[],wd:[]};
   liveDay(date,force).then(function(L){
@@ -253,9 +263,10 @@ function startLive(date,my,force){
     state.data=mergeLive(base,L);
     var n=L.in.length+L.ka.length+L.wd.length;
     liveBar(n?'ok':'none',n?'Live headlines added: '+n+' from Indian news sites, sorted automatically into categories. Data: GDELT Project.':'No extra headlines were found for this day.');
-    renderAll();focusCard();
+    renderAll();tmMark(date,'live',n>0);focusCard();
   }).catch(function(){
     if(my!==token||state.cur!==date)return;
+    tmMark(date,'live',0);
     logEvent('live','headlines for '+date+' failed');
     liveBar('err','Could not collect live headlines. Check your connection.');
     if(!(state.data&&(state.data.in.length||state.data.ka.length||state.data.wd.length))){state.data=base;renderAll();$('catempty').hidden=true}
@@ -455,7 +466,7 @@ var token=0;
 function go(date,noHash,focus){
   if(!DRE.test(date))return;
   stopSpeech();
-  var my=++token;
+  var my=++token;tmNow();
   state.cur=date;state.vy=parse(date).getFullYear();state.vm=parse(date).getMonth();
   paint();showSkeleton();closeCal();
   if(!noHash){try{history.replaceState(null,'','#'+date)}catch(e){location.hash=date}}
@@ -467,7 +478,7 @@ function go(date,noHash,focus){
   loadDay(date).then(function(d){
     if(my!==token)return;
     if(!d){showEmpty(date);return}
-    state.data=d;renderAll();prefetch(date);focusCard();
+    state.data=d;renderAll();tmMark(date,'written',1);prefetch(date);focusCard();
     if(win)startLive(date,my);
   }).catch(function(){
     if(my!==token)return;
@@ -758,6 +769,12 @@ function openSettings(){
     mn.addEventListener('click',function(){applyFs(state.fs-1);upd()});mx.addEventListener('click',function(){applyFs(state.fs+1);upd()});rs.addEventListener('click',function(){applyFs(2);upd()});
     r.appendChild(mn);r.appendChild(pc);r.appendChild(mx);r.appendChild(rs);b.appendChild(r);
     b.appendChild(el('p','why','You can also pinch the screen to zoom in and out.'));
+    b.appendChild(el('h4',null,'Loading speed'));
+    var tm=tmRead();
+    function avg(k){var a=tm.filter(function(x){return x.k===k&&x.ok});if(!a.length)return null;return a.reduce(function(n,x){return n+x.ms},0)/a.length/1000}
+    var aw=avg('written'),al=avg('live');
+    b.appendChild(el('p','why',tm.length?('Average over your last '+tm.length+' loads. Written briefing: '+(aw===null?'none yet':aw.toFixed(1)+' s')+'. Live headlines: '+(al===null?'none yet':al.toFixed(1)+' s')+'. Failed loads are not counted.'):'No loads recorded yet. Open a few days and look here again.'));
+    var tl=el('ul','why');tm.slice(-5).reverse().forEach(function(x){tl.appendChild(el('li',null,x.d+' '+(x.k==='live'?'live':'written')+': '+(x.ms/1000).toFixed(1)+' s'+(x.ok?'':' (failed or empty)')))});if(tm.length)b.appendChild(tl);
     b.appendChild(el('h4',null,'Colours and theme'));
     var tr=el('div','set-row wrapr');var cur=lsGet('dnb:theme2','sepia');
     THEMES.forEach(function(t){
