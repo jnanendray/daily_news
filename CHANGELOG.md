@@ -70,3 +70,4 @@
 
 ## 2.12
 - Settings shows average load time of the written briefing and the live headlines (last 20 loads, stored on the device only).
+- Collector reads past days from the newspapers' own daily archives (Deccan Herald, Prajavani, Kannada Prabha sitemaps; Times of India archive).
