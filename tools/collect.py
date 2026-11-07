@@ -319,11 +319,14 @@ def main():
     fresh = {d: [] for d in want}
     # 1. the outlets' own feeds (recent items only)
     good = 0
-    for url, name, sec, cat, lang in FEEDS:
-        if a.mock_feed:
-            items, note = read_feed('file://' + os.path.abspath(a.mock_feed), name, sec, cat, lang, today)
-        else:
-            items, note = read_feed(url, name, sec, cat, lang, today)
+    def one(f):
+        url, name, sec, cat, lang = f
+        src = ('file://' + os.path.abspath(a.mock_feed)) if a.mock_feed else url
+        return f, read_feed(src, name, sec, cat, lang, today)
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        results = list(ex.map(one, FEEDS))  # keeps feed order
+    for (url, name, sec, cat, lang), (items, note) in results:
         print('feed %-22s %-3s %s' % (name, sec, note), '<-', url.split('/')[2])
         good += 1 if items else 0
         for it in items:
