@@ -309,6 +309,7 @@ def main():
     ap.add_argument('--mock', help='GDELT-style JSON file used instead of the network')
     ap.add_argument('--mock-feed', help='RSS file used for every feed instead of the network')
     ap.add_argument('--out', default='data/live')
+    ap.add_argument('--no-archive', action='store_true')
     ap.add_argument('--no-gdelt', action='store_true')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -332,6 +333,15 @@ def main():
         for it in items:
             if it['date'] in fresh:
                 fresh[it['date']].append(it)
+    # 1b. the newspapers' own day-by-day archives (this is what fills past days)
+    if not a.no_archive and not a.mock and not a.mock_feed:
+        import archive
+        for d in want:
+            try:
+                got = archive.archive_items(d, get_bytes)
+                fresh[d] += got
+            except Exception as e:
+                print('archive', d, 'failed:', str(e)[:80])
     # 2. GDELT index for older days (often refused from cloud servers; one attempt each, stop on first refusal)
     if not a.no_gdelt:
         for i, d in enumerate(want):
